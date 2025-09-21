@@ -30,6 +30,14 @@ export default function LibraryPage() {
     setEditingBook(null); // fecha modal
   };
 
+  const handleRating = (id: string, rating: number) => {
+    setBooks((prevBooks) =>
+      prevBooks.map((book) =>
+        book.id === id ? { ...book, rating } : book
+      )
+    );
+  };
+
   return (
     <div className="p-16">
       <h1 className="text-3xl font-bold mb-6">Biblioteca</h1>
@@ -60,15 +68,20 @@ export default function LibraryPage() {
             {/* Rating */}
             <div className="flex items-center mt-2 mb-4">
               {[1, 2, 3, 4, 5].map((i) => (
-                <Star
+                <button
                   key={i}
-                  size={16}
-                  className={`${
-                    i <= Math.round(book.rating)
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "text-gray-300"
-                  }`}
-                />
+                  onClick={() => handleRating(book.id, i)}
+                  className="focus:outline-none"
+                >
+                  <Star
+                    size={16}
+                    className={`${
+                      i <= Math.round(book.rating)
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-gray-300"
+                    }`}
+                  />
+                </button>
               ))}
               <span className="ml-2 text-sm text-gray-500">
                 {book.rating.toFixed(1)}
