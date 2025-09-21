@@ -76,7 +76,7 @@ export default function LibraryPage() {
                   <Star
                     size={16}
                     className={`${
-                      i <= Math.round(book.rating)
+                      i <= Math.round(book.rating ?? 0)
                         ? "fill-yellow-400 text-yellow-400"
                         : "text-gray-300"
                     }`}
@@ -84,7 +84,7 @@ export default function LibraryPage() {
                 </button>
               ))}
               <span className="ml-2 text-sm text-gray-500">
-                {book.rating.toFixed(1)}
+                {(book.rating ?? 0).toFixed(1)}
               </span>
             </div>
 
