@@ -1,19 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Book, ReadingStatus } from '@/types/book'; // Ajuste o caminho se necessário
+import { Book, ReadingStatus } from '@/types/book';
 import { useParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { getBookById, updateBooks } from '@/data/books'; // Helpers para dados globais (veja exemplo abaixo)
+import { getBookById, updateBooks } from '@/data/books';
+import { Label } from '@/components/ui/label';
+import StarRating from '@/components/StarRating'; // Importe o componente de StarRating
+
+// Importe os ícones necessários
+import { FaBook, FaPencilAlt, FaCalendarAlt, FaHashtag, FaEye, FaStickyNote, FaStar, FaInfoCircle, FaImage, FaUser, FaTag, FaFile, FaSortNumericUpAlt } from 'react-icons/fa';
 
 const genres = [
   'Literatura Brasileira', 'Ficção Científica', 'Realismo Mágico', 'Ficção', 'Fantasia',
   'Romance', 'Biografia', 'História', 'Autoajuda', 'Tecnologia', 'Programação',
-  'Negócios', 'Psicologia', 'Filosofia', 'Poesia'
+  'Negócios', 'Psicologia', 'Filosofia', 'Poesia', 'Outro'
 ] as const;
 
 const statuses: ReadingStatus[] = ['QUERO_LER', 'LENDO', 'LIDO', 'PAUSADO', 'ABANDONADO'];
@@ -29,6 +34,8 @@ export default function EditBook() {
   const [submitting, setSubmitting] = useState(false);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [synopsisCount, setSynopsisCount] = useState(0);
+  const [notesCount, setNotesCount] = useState(0);
 
   // Carregar livro ao montar o componente
   useEffect(() => {
@@ -37,6 +44,8 @@ export default function EditBook() {
       setOriginalBook(book);
       setForm(book);
       setCoverPreview(book.cover || null);
+      setSynopsisCount(book.synopsis?.length || 0);
+      setNotesCount(book.notes?.length || 0);
     } else {
       setNotFound(true);
       toast.error('Livro não encontrado');
@@ -45,31 +54,39 @@ export default function EditBook() {
     setLoading(false);
   }, [bookId, router]);
 
-  // Validação em tempo real para obrigatórios
-  useEffect(() => {
-    if (!loading && originalBook) {
-      const newErrors: { [key: string]: string } = {};
-      if (!form.title?.trim()) newErrors.title = 'Título é obrigatório';
-      if (!form.author?.trim()) newErrors.author = 'Autor é obrigatório';
-      setErrors(newErrors);
-    }
-  }, [form.title, form.author, loading, originalBook]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    
+    // Converte valores para número ou string com base no nome do campo
+    const newValue = (name === 'year' || name === 'pages' || name === 'currentPage' || name === 'rating')
+      ? (value === '' ? undefined : Number(value))
+      : value;
+
+    // Atualiza contadores para sinopse e notas
+    if (name === 'synopsis') {
+      setSynopsisCount(value.length);
+    }
+    if (name === 'notes') {
+      setNotesCount(value.length);
+    }
+    
+    // Atualiza o estado do formulário de forma segura
+    setForm(prev => ({ ...prev, [name]: newValue }));
+
+    // Atualiza o preview da capa
+    if (name === 'cover') {
+        setCoverPreview(value);
+    }
 
     // Limpar erro
     if (errors[name as keyof typeof errors]) {
       setErrors({ ...errors, [name]: '' });
     }
+  };
 
-    // Preview capa
-    if (name === 'cover' && value) {
-      setCoverPreview(value);
-    } else if (name === 'cover' && !value) {
-      setCoverPreview(null);
-    }
+  // Funçao para gerenciar a mudança de rating
+  const handleRatingChange = (newRating: number) => {
+    setForm(prevForm => ({ ...prevForm, rating: newRating }));
   };
 
   const validate = () => {
@@ -94,24 +111,15 @@ export default function EditBook() {
 
     setSubmitting(true);
     try {
-      const updatedBook: Partial<Book> = {
-        title: form.title!,
-        author: form.author!,
-        genre: form.genre || undefined,
-        year: form.year ? Number(form.year) : undefined,
-        pages: form.pages ? Number(form.pages) : undefined,
-        currentPage: form.currentPage ? Number(form.currentPage) : undefined,
-        rating: form.rating ? Number(form.rating) : undefined,
-        synopsis: form.synopsis || undefined,
-        cover: form.cover || undefined,
-        status: form.status || 'QUERO_LER',
-        isbn: form.isbn || undefined,
-        notes: form.notes || undefined,
+      const updatedBook: Book = {
+        ...(originalBook as Book), // Garante que campos não editados sejam mantidos
+        ...form as Book, // Sobrescreve apenas os campos do formulário
       };
 
       // Simular salvamento assíncrono e atualizar no array global
       await new Promise(resolve => setTimeout(resolve, 1000));
-      updateBooks(prev => prev.map(b => b.id === bookId ? { ...b, ...updatedBook } : b));
+      // A chamada para a função updateBooks agora está tipada corretamente
+      updateBooks(prev => prev.map(b => b.id === bookId ? updatedBook : b));
 
       toast.success('Livro atualizado com sucesso!');
       router.push('/library'); // Redireciona para biblioteca
@@ -122,14 +130,13 @@ export default function EditBook() {
     }
   };
 
-  // Barra de progresso (baseado em campos preenchidos)
   const totalFields = 13;
-  const filledFields = Object.values(form).filter(Boolean).length;
+  const filledFields = Object.values(form).filter(value => value !== undefined && value !== null && value !== '').length;
   const progress = Math.round((filledFields / totalFields) * 100);
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto p-6 flex justify-center items-center min-h-[400px]">
+      <div className="max-w-7xl mx-auto p-6 flex justify-center items-center min-h-[400px]">
         <div className="text-center">
           <p className="text-gray-600 text-lg">Carregando detalhes do livro...</p>
         </div>
@@ -142,273 +149,278 @@ export default function EditBook() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-      <h1 className="text-2xl font-semibold text-gray-900 mb-6">Editar Livro: {originalBook.title}</h1>
-
-      {/* Barra de progresso */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Progresso do formulário: {progress}%</label>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-in-out"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Campos obrigatórios */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-              Título *
-            </label>
-            <Input
-              id="title"
-              name="title"
-              type="text"
-              value={form.title || ''}
-              onChange={handleChange}
-              className={errors.title ? 'border-red-500 focus:border-red-500' : ''}
-              required
-              aria-invalid={!!errors.title}
-              placeholder="Digite o título do livro"
-            />
-            {errors.title && <p className="text-red-600 text-sm mt-1">{errors.title}</p>}
+    <div className="max-w-7xl mx-auto px-6">
+      <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">Editar Livro</h1>
+      <p className="text-center text-gray-500 mb-6">Altere as informações do livro e salve as mudanças.</p>
+      
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 md:p-12 flex flex-col lg:flex-row gap-12">
+        
+        {/* Formulário (lado esquerdo) */}
+        <div className="flex-1 lg:pr-12 lg:border-r lg:border-gray-200">
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-2 flex items-center gap-2 text-gray-800">
+              <FaInfoCircle className="text-blue-500" /> Informações do Livro
+            </h2>
+            <div className="w-full bg-gray-200 rounded-full h-1.5">
+              <div
+                className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-right text-sm text-gray-500 mt-1">{progress}% completos</p>
           </div>
 
-          <div>
-            <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
-              Autor *
-            </label>
-            <Input
-              id="author"
-              name="author"
-              type="text"
-              value={form.author || ''}
-              onChange={handleChange}
-              className={errors.author ? 'border-red-500 focus:border-red-500' : ''}
-              required
-              aria-invalid={!!errors.author}
-              placeholder="Digite o nome do autor"
-            />
-            {errors.author && <p className="text-red-600 text-sm mt-1">{errors.author}</p>}
-          </div>
-        </div>
-
-        {/* Campos opcionais: Gênero e Ano */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="genre" className="block text-sm font-medium text-gray-700 mb-1">
-              Gênero
-            </label>
-            <Select value={form.genre || ''} onValueChange={(value) => setForm({ ...form, genre: value })}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Selecione um gênero" />
-              </SelectTrigger>
-              <SelectContent>
-                {genres.map(genre => (
-                  <SelectItem key={genre} value={genre}>{genre}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
-              Ano de Publicação
-            </label>
-            <Input
-              id="year"
-              name="year"
-              type="number"
-              value={form.year || ''}
-              onChange={handleChange}
-              className={errors.year ? 'border-red-500 focus:border-red-500' : ''}
-              min="0"
-              max={new Date().getFullYear()}
-              placeholder="Ex: 2023"
-            />
-            {errors.year && <p className="text-red-600 text-sm mt-1">{errors.year}</p>}
-          </div>
-        </div>
-
-        {/* Páginas e ISBN */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="pages" className="block text-sm font-medium text-gray-700 mb-1">
-              Total de Páginas
-            </label>
-            <Input
-              id="pages"
-              name="pages"
-              type="number"
-              value={form.pages || ''}
-              onChange={handleChange}
-              className={errors.pages ? 'border-red-500 focus:border-red-500' : ''}
-              min="1"
-              placeholder="Ex: 300"
-            />
-            {errors.pages && <p className="text-red-600 text-sm mt-1">{errors.pages}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="isbn" className="block text-sm font-medium text-gray-700 mb-1">
-              ISBN
-            </label>
-            <Input
-              id="isbn"
-              name="isbn"
-              type="text"
-              value={form.isbn || ''}
-              onChange={handleChange}
-              placeholder="Ex: 978-3-16-148410-0"
-            />
-          </div>
-        </div>
-
-        {/* Página Atual e Status */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="currentPage" className="block text-sm font-medium text-gray-700 mb-1">
-              Página Atual
-            </label>
-            <Input
-              id="currentPage"
-              name="currentPage"
-              type="number"
-              value={form.currentPage || ''}
-              onChange={handleChange}
-              className={errors.currentPage ? 'border-red-500 focus:border-red-500' : ''}
-              min="0"
-              placeholder="Ex: 150"
-            />
-            {errors.currentPage && <p className="text-red-600 text-sm mt-1">{errors.currentPage}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-              Status de Leitura
-            </label>
-            <Select value={form.status || 'QUERO_LER'} onValueChange={(value) => setForm({ ...form, status: value as ReadingStatus })}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Selecione o status" />
-              </SelectTrigger>
-              <SelectContent>
-                {statuses.map(status => (
-                  <SelectItem key={status} value={status}>{status.replace('_', ' ').toUpperCase()}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Avaliação e Capa */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="rating" className="block text-sm font-medium text-gray-700 mb-1">
-              Avaliação (1-5 estrelas)
-            </label>
-            <Input
-              id="rating"
-              name="rating"
-              type="number"
-              value={form.rating || ''}
-              onChange={handleChange}
-              className={errors.rating ? 'border-red-500 focus:border-red-500' : ''}
-              min="1"
-              max="5"
-              step="0.5"
-              placeholder="Ex: 4.5"
-            />
-            {errors.rating && <p className="text-red-600 text-sm mt-1">{errors.rating}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="cover" className="block text-sm font-medium text-gray-700 mb-1">
-              URL da Capa
-            </label>
-            <Input
-              id="cover"
-              name="cover"
-              type="url"
-              value={form.cover || ''}
-              onChange={handleChange}
-              placeholder="https://exemplo.com/capa.jpg"
-            />
-            {coverPreview && (
-              <div className="mt-2">
-                <img
-                  src={coverPreview}
-                  alt="Preview da capa do livro"
-                  className="w-24 h-32 object-cover rounded border border-gray-200 shadow-sm"
-                  onError={() => setCoverPreview(null)}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="title" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaBook className="text-gray-500" /> Título *
+                </Label>
+                <Input
+                  id="title"
+                  name="title"
+                  type="text"
+                  value={form.title || ''}
+                  onChange={handleChange}
+                  className={errors.title ? 'border-red-500' : ''}
+                  required
                 />
-                <p className="text-xs text-gray-500 mt-1">Preview da capa (atualiza em tempo real)</p>
+                {errors.title && <p className="text-red-600 text-sm mt-1">{errors.title}</p>}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="author" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaUser className="text-gray-500" /> Autor *
+                </Label>
+                <Input
+                  id="author"
+                  name="author"
+                  type="text"
+                  value={form.author || ''}
+                  onChange={handleChange}
+                  className={errors.author ? 'border-red-500' : ''}
+                  required
+                />
+                {errors.author && <p className="text-red-600 text-sm mt-1">{errors.author}</p>}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="genre" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaTag className="text-gray-500" /> Gênero
+                </Label>
+                <Select value={form.genre || ''} onValueChange={(value) => setForm({ ...form, genre: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um gênero" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {genres.map(genre => (
+                      <SelectItem key={genre} value={genre}>{genre}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="year" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaCalendarAlt className="text-gray-500" /> Ano de Publicação
+                </Label>
+                <Input
+                  id="year"
+                  name="year"
+                  type="number"
+                  value={form.year ?? ''}
+                  onChange={handleChange}
+                  className={errors.year ? 'border-red-500' : ''}
+                  min="0"
+                  max={new Date().getFullYear()}
+                />
+                {errors.year && <p className="text-red-600 text-sm mt-1">{errors.year}</p>}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="pages" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaFile className="text-gray-500" /> Total de Páginas
+                </Label>
+                <Input
+                  id="pages"
+                  name="pages"
+                  type="number"
+                  value={form.pages ?? ''}
+                  onChange={handleChange}
+                  className={errors.pages ? 'border-red-500' : ''}
+                  min="1"
+                />
+                {errors.pages && <p className="text-red-600 text-sm mt-1">{errors.pages}</p>}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="isbn" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaHashtag className="text-gray-500" /> ISBN (Identificador numérico do livro)
+                </Label>
+                <Input
+                  id="isbn"
+                  name="isbn"
+                  type="text"
+                  value={form.isbn || ''}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="currentPage" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaSortNumericUpAlt className="text-gray-500" /> Página Atual
+                </Label>
+                <Input
+                  id="currentPage"
+                  name="currentPage"
+                  type="number"
+                  value={form.currentPage ?? ''}
+                  onChange={handleChange}
+                  className={errors.currentPage ? 'border-red-500' : ''}
+                  min="0"
+                />
+                {errors.currentPage && <p className="text-red-600 text-sm mt-1">{errors.currentPage}</p>}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="status" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaEye className="text-gray-500" /> Status de Leitura
+                </Label>
+                <Select value={form.status} onValueChange={(value) => setForm({ ...form, status: value as ReadingStatus })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statuses.map(status => (
+                      <SelectItem key={status} value={status}>{status.replace('_', ' ').toUpperCase()}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="rating" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaStar className="text-gray-500" /> Avaliação
+                </Label>
+                <StarRating
+                  rating={form.rating}
+                  onRatingChange={handleRatingChange}
+                />
+                {errors.rating && <p className="text-red-600 text-sm mt-1">{errors.rating}</p>}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="cover" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaImage className="text-gray-500" /> URL da Capa
+                </Label>
+                <Input
+                  id="cover"
+                  name="cover"
+                  type="url"
+                  value={form.cover || ''}
+                  onChange={handleChange}
+                  placeholder="https://exemplo.com/capa.jpg"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="synopsis" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaPencilAlt className="text-gray-500" /> Sinopse
+                </Label>
+                <Textarea
+                  id="synopsis"
+                  name="synopsis"
+                  value={form.synopsis || ''}
+                  onChange={handleChange}
+                  rows={4}
+                  placeholder="Descrição detalhada do livro..."
+                  maxLength={1000}
+                />
+                <div className="text-right text-sm text-gray-500 mt-1">{synopsisCount}/1000</div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="notes" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaStickyNote className="text-gray-500" /> Notas Pessoais
+                </Label>
+                <Textarea
+                  id="notes"
+                  name="notes"
+                  value={form.notes || ''}
+                  onChange={handleChange}
+                  rows={3}
+                  placeholder="Suas observações..."
+                  maxLength={1000}
+                />
+                <div className="text-right text-sm text-gray-500 mt-1">{notesCount}/1000</div>
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-4">
+              <Button type="submit" disabled={submitting} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
+                {submitting ? 'Salvando...' : 'Atualizar Livro'}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => router.back()} className="flex-1 text-gray-700 border-gray-300 hover:bg-gray-100">
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </div>
+
+        {/* Área de Preview do Livro (lado direito) */}
+        <div className="lg:w-96 flex-shrink-0 flex flex-col items-center">
+          <div className="w-full bg-gray-50 rounded-xl border border-gray-200 shadow-sm p-8 text-center space-y-6 max-h-[700px] overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4">Pré-visualização</h2>
+            
+            {coverPreview && (
+              <img
+                src={coverPreview}
+                alt="Preview da capa"
+                className="w-full h-96 mx-auto rounded-lg shadow-lg object-cover transform transition-transform duration-300 hover:scale-105"
+                onError={() => setCoverPreview(null)}
+              />
+            )}
+            {!coverPreview && (
+              <div className="w-full h-96 bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-500 text-center border-2 border-dashed border-gray-300">
+                <FaImage size={48} className="text-gray-400 mb-4" />
+                <p className="text-sm px-4">Adicione uma URL da capa para ver a pré-visualização</p>
               </div>
             )}
+            
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold text-gray-800">{form.title || ' '}</h3>
+              <p className="text-sm font-medium text-gray-600">{form.author || ' '}</p>
+            </div>
+            
+            <div className="flex justify-center">
+                {form.rating !== undefined && form.rating !== null && (
+                    <StarRating rating={form.rating} onRatingChange={handleRatingChange} />
+                )}
+            </div>
+
+            <p className="text-sm text-gray-500 font-semibold">{form.genre || ' '}</p>
+
+            <p className="text-sm text-gray-700 text-justify leading-relaxed break-words">
+              {form.synopsis || ' '}
+            </p>
+
+            <p className="text-sm text-gray-700 text-justify leading-relaxed break-words">
+              {form.notes || ' '}
+            </p>
+
           </div>
         </div>
-
-        {/* Sinopse */}
-        <div>
-          <label htmlFor="synopsis" className="block text-sm font-medium text-gray-700 mb-1">
-            Sinopse Detalhada
-          </label>
-          <Textarea
-            id="synopsis"
-            name="synopsis"
-            value={form.synopsis || ''}
-            onChange={handleChange}
-            rows={4}
-            className="resize-vertical"
-            placeholder="Descreva a sinopse ou resumo do livro..."
-          />
-        </div>
-
-        {/* Notas Pessoais */}
-        <div>
-          <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-            Notas Pessoais
-          </label>
-          <Textarea
-            id="notes"
-            name="notes"
-            value={form.notes || ''}
-            onChange={handleChange}
-            rows={3}
-            className="resize-vertical"
-            placeholder="Suas observações, citações favoritas ou progresso de leitura..."
-          />
-        </div>
-
-        {/* Botões de ação */}
-        <div className="flex space-x-4 pt-4">
-          <Button
-            type="submit"
-            disabled={submitting}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium"
-          >
-            {submitting ? (
-              <>
-                <span className="mr-2">Salvando...</span>
-                {/* Pode adicionar um spinner aqui se quiser */}
-              </>
-            ) : (
-              'Atualizar Livro'
-            )}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push('/library')}
-            className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
-            disabled={submitting}
-          >
-            Cancelar
-          </Button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 }

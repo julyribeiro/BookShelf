@@ -2,7 +2,7 @@ import { Book } from '@/types/book';
 
 // Armazenamento em memória para simular um banco de dados
 // 'let' permite que o array seja modificado (adicionar/remover livros)
-export const books: Book[] = [
+export let books: Book[] = [ // Adicionado 'let' aqui para que o array possa ser reatribuído
   {
     id: "1",
     title: "Dom Casmurro",
@@ -74,16 +74,24 @@ export function getBookById(id: string): Book | undefined {
 }
 
 /**
- * Adiciona um novo livro ou atualiza um existente.
- * @param newBook O objeto do livro a ser adicionado ou atualizado.
+ * Adiciona um novo livro ou atualiza um existente no array global.
+ * Também permite passar uma função de atualização para modificar o array.
+ * @param data O objeto do livro a ser adicionado/atualizado, OU uma função de atualização.
  */
-export function updateBooks(newBook: Book): void {
-  const index = books.findIndex(book => book.id === newBook.id);
-  if (index !== -1) {
-    // Atualiza o livro existente
-    books[index] = newBook;
+export function updateBooks(data: Book | ((prevBooks: Book[]) => Book[])): void {
+  // Verifica se o parâmetro 'data' é uma função
+  if (typeof data === 'function') {
+    // Se for uma função, chama essa função para obter o novo estado do array 'books'
+    books = data(books);
   } else {
-    // Adiciona o novo livro
-    books.push(newBook);
+    // Se for um objeto Book, encontra o índice do livro no array
+    const index = books.findIndex(book => book.id === data.id);
+    if (index !== -1) {
+      // Atualiza o livro existente
+      books[index] = data;
+    } else {
+      // Adiciona o novo livro
+      books.push(data);
+    }
   }
 }
