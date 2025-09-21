@@ -8,7 +8,7 @@ export function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-center md:text-left">
           <div className="text-gray-600">
             <p className="text-sm">
-              © 2024 BookShelf. Todos os direitos reservados.
+              © 2025 BookShelf. Todos os direitos reservados.
             </p>
             <p className="text-xs mt-1">
               Desenvolvido por Celso, Felype, July e Márcia com Next.js e React.

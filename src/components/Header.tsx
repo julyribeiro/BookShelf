@@ -8,6 +8,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
+import { FaBook, FaHome, FaPlusCircle, FaBookOpen } from 'react-icons/fa';
 
 export function Header() {
   return (
@@ -16,8 +17,8 @@ export function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/dashboard" className="text-xl font-semibold text-blue-600 hover:text-blue-700 transition-colors">
-              BookShelf
+            <Link href="/dashboard" className="flex items-center gap-2 text-xl font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+              <FaBook className="text-2xl" /> BookShelf
             </Link>
           </div>
 
@@ -28,7 +29,9 @@ export function Header() {
                 variant="ghost" 
                 className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 font-medium btn-focus transition-colors"
               >
-                Início
+                <span className="flex items-center gap-1">
+                  <FaHome /> Início
+                </span>
               </Button>
             </Link>
             <Link href="/library" aria-label="Ir para Biblioteca">
@@ -36,26 +39,30 @@ export function Header() {
                 variant="ghost" 
                 className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 font-medium btn-focus transition-colors"
               >
-                Biblioteca
+                <span className="flex items-center gap-1">
+                  <FaBookOpen /> Biblioteca
+                </span>
               </Button>
             </Link>
             <Link href="/add-book" aria-label="Adicionar novo livro">
               <Button 
                 variant="ghost" 
-                className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 font-medium  btn-focus transition-colors"
+                className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 font-medium btn-focus transition-colors"
               >
-                Adicionar Livro
+                <span className="flex items-center gap-1">
+                  <FaPlusCircle /> Adicionar Livro
+                </span>
               </Button>
             </Link>
           </nav>
 
-          {/* Mobile Navigation*/}
+          {/* Mobile Navigation */}
           <Sheet>
             <SheetTrigger asChild>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="md:hidden text-gray-700  btn-focus hover:text-blue-600 hover:bg-blue-50"
+                className="md:hidden text-gray-700 btn-focus hover:text-blue-600 hover:bg-blue-50"
                 aria-label="Abrir menu de navegação"
               >
                 <Menu className="h-5 w-5" />
@@ -69,7 +76,9 @@ export function Header() {
                     variant="ghost" 
                     className="w-full justify-start text-gray-700 btn-focus hover:text-blue-600 hover:bg-blue-50 font-medium transition-colors"
                   >
-                    Início
+                    <span className="flex items-center gap-2">
+                      <FaHome /> Início
+                    </span>
                   </Button>
                 </Link>
                 <Link href="/library" className="w-full">
@@ -77,7 +86,9 @@ export function Header() {
                     variant="ghost" 
                     className="w-full justify-start text-gray-700 btn-focus hover:text-blue-600 hover:bg-blue-50 font-medium transition-colors"
                   >
-                    Biblioteca
+                    <span className="flex items-center gap-2">
+                      <FaBookOpen /> Biblioteca
+                    </span>
                   </Button>
                 </Link>
                 <Link href="/add-book" className="w-full">
@@ -85,7 +96,9 @@ export function Header() {
                     variant="ghost" 
                     className="w-full justify-start btn-focus text-gray-700 hover:text-blue-600 hover:bg-blue-50 font-medium transition-colors"
                   >
-                    Adicionar Livro
+                    <span className="flex items-center gap-2">
+                      <FaPlusCircle /> Adicionar Livro
+                    </span>
                   </Button>
                 </Link>
               </nav>

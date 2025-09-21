@@ -1,5 +1,7 @@
-import { Book } from '../types/book';
+import { Book } from '@/types/book';
 
+// Armazenamento em memória para simular um banco de dados
+// 'let' permite que o array seja modificado (adicionar/remover livros)
 export const books: Book[] = [
   {
     id: "1",
@@ -62,3 +64,26 @@ export const books: Book[] = [
     status: "ABANDONADO"
   }
 ];
+
+/**
+ * Retorna um livro pelo seu ID.
+ * @param id O ID do livro a ser encontrado.
+ */
+export function getBookById(id: string): Book | undefined {
+  return books.find(book => book.id === id);
+}
+
+/**
+ * Adiciona um novo livro ou atualiza um existente.
+ * @param newBook O objeto do livro a ser adicionado ou atualizado.
+ */
+export function updateBooks(newBook: Book): void {
+  const index = books.findIndex(book => book.id === newBook.id);
+  if (index !== -1) {
+    // Atualiza o livro existente
+    books[index] = newBook;
+  } else {
+    // Adiciona o novo livro
+    books.push(newBook);
+  }
+}

@@ -3,11 +3,15 @@ import { Inter } from 'next/font/google';
 import './globals.css'; // Importa Tailwind e estilos globais
 import { Header } from '@/components/Header'; // Caminho relativo para components/
 import { Footer } from '@/components/Footer';
+import { Toaster } from 'react-hot-toast'; // Importação do Toaster
+
 const inter = Inter({ subsets: ['latin'] });
+
 export const metadata: Metadata = {
   title: 'BookShelf - Gerenciador de Biblioteca Pessoal',
   description: 'Uma aplicação para catalogar e organizar seus livros.',
 };
+
 export default function RootLayout({
   children,
 }: {
@@ -21,6 +25,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <Toaster />
       </body>
     </html>
   );
