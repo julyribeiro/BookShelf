@@ -10,7 +10,7 @@ export const books: Book[] = [
     pages: 256,
     rating: 4.5,
     synopsis: "Bentinho, um homem solitário e ciumento, relembra sua juventude e sua paixão por Capitu, questionando se ela o traiu com seu melhor amigo. Um dos maiores clássicos da literatura brasileira, cheio de ambiguidades e ironias.",
-    cover: "https://m.media-amazon.com/images/I/71lqRwQcN+L._AC_UF1000,1000_QL80_.jpg",
+    cover: "https://m.media-amazon.com/images/I/61Z2bMhGicL.jpg",
     status: "LIDO"
   },
   {
@@ -22,7 +22,7 @@ export const books: Book[] = [
     pages: 688,
     rating: 4.7,
     synopsis: "Num futuro distante, a humanidade depende da especiaria melange, encontrada apenas no planeta desértico Arrakis. Paul Atreides, herdeiro de uma nobre casa, se vê envolvido em uma guerra épica pelo controle do planeta e seu precioso recurso.",
-    cover: "https://m.media-amazon.com/images/I/81h1hXZyM+L._AC_UF1000,1000_QL80_.jpg",
+    cover: "https://m.media-amazon.com/images/I/41MRn6hy8-L._SY445_SX342_ML2_.jpg",
     status: "LENDO"
   },
   {
@@ -34,7 +34,7 @@ export const books: Book[] = [
     pages: 423,
     rating: 4.9,
     synopsis: "Em uma terra chamada Terra-média, o jovem hobbit Frodo Bolseiro herda um anel mágico e maligno, e embarca em uma jornada épica para destruí-lo no Monte da Perdição, enfrentando orcs, elfos, magos e a própria escuridão.",
-    cover: "https://m.media-amazon.com/images/I/81T4hGz+7gL._AC_UF1000,1000_QL80_.jpg",
+    cover: "https://m.media-amazon.com/images/I/41RBd2DvmgL._SY445_SX342_ML2_.jpg",
     status: "QUERO_LER"
   },
   {
@@ -46,7 +46,7 @@ export const books: Book[] = [
     pages: 656,
     rating: 4.6,
     synopsis: "Baseada em mais de quarenta entrevistas com Steve Jobs, esta biografia autorizada revela a personalidade intensa e às vezes difícil do gênio que revolucionou seis indústrias: computadores, filmes, música, telefones, tablets e publicações digitais.",
-    cover: "https://m.media-amazon.com/images/I/81V1dHqJYBL._AC_UF1000,1000_QL80_.jpg",
+    cover: "https://m.media-amazon.com/images/I/81wbmWlRNEL._SY342_.jpg",
     status: "PAUSADO"
   },
   {
