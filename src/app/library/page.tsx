@@ -1,6 +1,7 @@
 // src/app/library/page.tsx
 "use client";
 
+import { Suspense } from "react";
 import { useState, useMemo, useEffect } from "react";
 import { getBooks, updateBooks } from "@/data/books";
 import { FaPlus, FaPencilAlt, FaTrashAlt, FaSearch } from 'react-icons/fa';
@@ -23,7 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useSearchParams } from "next/navigation"; // Importa o hook
+import { useSearchParams } from "next/navigation";
 
 const genres = [
   "Todos os Gêneros",
@@ -53,7 +54,17 @@ const statuses = [
   "ABANDONADO"
 ];
 
+// ======== EXPORT PADRÃO ENVOLTO EM SUSPENSE ========
 export default function LibraryPage() {
+  return (
+    <Suspense fallback={<div>Carregando…</div>}>
+      <LibraryPageInner />
+    </Suspense>
+  );
+}
+
+// ======== COMPONENTE PRINCIPAL (usa useSearchParams) ========
+function LibraryPageInner() {
   const searchParams = useSearchParams();
   const initialStatus = searchParams.get('status') || 'Todos os Status';
 
@@ -77,15 +88,13 @@ export default function LibraryPage() {
   const filteredBooks = useMemo(() => {
     return books.filter(book => {
       const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          book.author.toLowerCase().includes(searchQuery.toLowerCase());
+                            book.author.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesGenre = selectedGenre === 'Todos os Gêneros' || book.genre === selectedGenre;
       const matchesStatus = selectedStatus === 'Todos os Status' || book.status === selectedStatus;
-
       return matchesSearch && matchesGenre && matchesStatus;
     });
   }, [books, searchQuery, selectedGenre, selectedStatus]);
 
-  // Atualiza o estado do filtro de status quando a URL muda
   useEffect(() => {
     const newStatus = searchParams.get('status') || 'Todos os Status';
     setSelectedStatus(newStatus);
@@ -113,21 +122,19 @@ export default function LibraryPage() {
             className="pl-10"
           />
         </div>
-        
-        <Select value={selectedGenre} onValueChange={(value) => setSelectedGenre(value)}>
+
+        <Select value={selectedGenre} onValueChange={setSelectedGenre}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Gênero" />
           </SelectTrigger>
           <SelectContent>
             {genres.map(genre => (
-              <SelectItem key={genre} value={genre}>
-                {genre}
-              </SelectItem>
+              <SelectItem key={genre} value={genre}>{genre}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-        
-        <Select value={selectedStatus} onValueChange={(value) => setSelectedStatus(value)}>
+
+        <Select value={selectedStatus} onValueChange={setSelectedStatus}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
@@ -163,10 +170,7 @@ export default function LibraryPage() {
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button
-                          variant="destructive"
-                          className="p-2 h-10 w-10 rounded-full cursor-pointer hover:bg-red-600"
-                        >
+                        <Button variant="destructive" className="p-2 h-10 w-10 rounded-full cursor-pointer hover:bg-red-600">
                           <FaTrashAlt className="text-white" />
                         </Button>
                       </AlertDialogTrigger>
@@ -174,8 +178,7 @@ export default function LibraryPage() {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Esta ação não pode ser desfeita. Isso removerá
-                            permanentemente o livro &quot;{book.title}&quot; da sua biblioteca.
+                            Esta ação não pode ser desfeita. Isso removerá permanentemente o livro &quot;{book.title}&quot;.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -205,7 +208,9 @@ export default function LibraryPage() {
               </div>
               <Link href={`/book/${book.id}`} className="block">
                 <div className="p-4 flex flex-col items-center text-center cursor-pointer">
-                  <h2 className="text-lg font-semibold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors">{book.title}</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors">
+                    {book.title}
+                  </h2>
                   <p className="text-sm text-gray-600">{book.author}</p>
                   <div className="flex items-center justify-center my-2">
                     <StarRating rating={book.rating || 0} />
