@@ -1,26 +1,41 @@
-import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
+// src/components/StarRating.tsx
+import { FaStar } from 'react-icons/fa';
+import { cn } from "@/lib/utils";
+import * as React from 'react';
 
-interface StarRatingProps {
+export interface StarRatingProps {
   rating: number;
+  onRatingChange?: (newRating: number) => void;
+  size?: number;
+  readOnly?: boolean;
 }
 
-export default function StarRating({ rating }: StarRatingProps) {
-  const roundedRating = Math.round(rating * 2) / 2;
-  const stars = [];
-
-  for (let i = 1; i <= 5; i++) {
-    if (i <= roundedRating) {
-      stars.push(<FaStar key={i} className="text-yellow-400" />);
-    } else if (i - 0.5 === roundedRating) {
-      stars.push(<FaStarHalfAlt key={i} className="text-yellow-400" />);
-    } else {
-      stars.push(<FaRegStar key={i} className="text-gray-300" />);
-    }
+const StarRating = React.forwardRef<HTMLDivElement, StarRatingProps>(
+  ({ rating, onRatingChange, size = 20, readOnly = false, ...props }, ref) => {
+    return (
+      <div ref={ref} className="flex items-center" {...props}>
+        {[...Array(5)].map((_, index) => {
+          const ratingValue = index + 1;
+          const isSelected = ratingValue <= rating;
+          
+          return (
+            <FaStar
+              key={index}
+              className={cn(
+                "cursor-pointer",
+                isSelected ? "text-yellow-400" : "text-gray-300",
+                readOnly && "cursor-default"
+              )}
+              size={size}
+              onClick={() => !readOnly && onRatingChange?.(ratingValue)}
+            />
+          );
+        })}
+      </div>
+    );
   }
+);
 
-  return (
-    <div className="flex items-center gap-1">
-      {stars}
-    </div>
-  );
-}
+StarRating.displayName = 'StarRating';
+
+export default StarRating;

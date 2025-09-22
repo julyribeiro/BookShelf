@@ -1,4 +1,5 @@
 import { Book } from '@/types/book';
+import { v4 as uuidv4 } from "uuid";
 
 export let books: Book[] = [
   {
@@ -99,25 +100,27 @@ export let books: Book[] = [
   }
 ];
 
-export function getBookById(id: string): Book | undefined {
-  return books.find(book => book.id === id);
-}
-
-export function getBooks(): Book[] {
+export const getBooks = (): Book[] => {
   return books;
-}
+};
 
-export function updateBooks(data: Book[] | Book | ((prevBooks: Book[]) => Book[])): void {
-  if (Array.isArray(data)) {
-    books = data;
-  } else if (typeof data === 'function') {
-    books = data(books);
-  } else {
-    const index = books.findIndex(book => book.id === data.id);
-    if (index !== -1) {
-      books[index] = data;
-    } else {
-      books.push(data);
-    }
-  }
-}
+export const getBookById = (id: string): Book | undefined => {
+  return books.find((book) => book.id === id);
+};
+
+export const addBook = (book: Book): void => {
+  const newBook = { ...book, id: uuidv4() };
+  books.push(newBook);
+};
+
+export const updateBooks = (updatedBooks: Book[]): void => {
+  books = updatedBooks;
+};
+
+export const updateBook = (updatedBook: Book): void => {
+  books = books.map((book) =>
+    book.id === updatedBook.id ? updatedBook : book
+  );
+};
+
+export type { Book };
