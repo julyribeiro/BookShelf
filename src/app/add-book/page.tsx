@@ -9,9 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { updateBooks } from '@/data/books';
 import { Label } from '@/components/ui/label';
-
+import { getBooks, updateBooks } from '@/data/books';
 import StarRating from '@/components/StarRating';
 import { FaBook, FaPencilAlt, FaGlobe, FaCalendarAlt, FaHashtag, FaEye, FaStickyNote, FaStar, FaInfoCircle, FaImage, FaUser, FaTag, FaFile, FaSortNumericUpAlt } from 'react-icons/fa';
 
@@ -92,34 +91,37 @@ export default function AddBook() {
     }
 
     setLoading(true);
-    try {
-      const newBook: Book = {
-        id: uuidv4(),
-        title: form.title!,
-        author: form.author!,
-        genre: form.genre || undefined,
-        year: form.year ? Number(form.year) : undefined,
-        pages: form.pages ? Number(form.pages) : undefined,
-        currentPage: form.currentPage ? Number(form.currentPage) : undefined,
-        rating: form.rating ? Number(form.rating) : undefined,
-        synopsis: form.synopsis || undefined,
-        cover: form.cover || undefined,
-        status: form.status || 'QUERO_LER',
-        isbn: form.isbn || undefined,
-        notes: form.notes || undefined,
-      };
+try {
+  const newBook: Book = {
+    id: uuidv4(),
+    title: form.title!,
+    author: form.author!,
+    genre: form.genre || undefined,
+    year: form.year ? Number(form.year) : undefined,
+    pages: form.pages ? Number(form.pages) : undefined,
+    currentPage: form.currentPage ? Number(form.currentPage) : undefined,
+    rating: form.rating ? Number(form.rating) : undefined,
+    synopsis: form.synopsis || undefined,
+    cover: form.cover || undefined,
+    status: form.status || 'QUERO_LER',
+    isbn: form.isbn || undefined,
+    notes: form.notes || undefined,
+  };
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      updateBooks([newBook]); 
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
-      toast.success('Livro adicionado com sucesso!');
-      router.push('/library');
-    } catch (error) {
-      toast.error('Erro ao adicionar livro. Tente novamente.');
-    } finally {
-      setLoading(false);
-      setForm({ title: '', author: '', genre: '', status: 'QUERO_LER' });
-    }
+  // 🔑 Pega o que já existe e concatena
+  const existingBooks = getBooks();
+  updateBooks([...existingBooks, newBook]);
+
+  toast.success('Livro adicionado com sucesso!');
+  router.push('/library');
+} catch (error) {
+  toast.error('Erro ao adicionar livro. Tente novamente.');
+} finally {
+  setLoading(false);
+  setForm({ title: '', author: '', genre: '', status: 'QUERO_LER' });
+}
   };
 
   const totalFields = 13;
