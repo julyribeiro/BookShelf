@@ -26,8 +26,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images-na.ssl-images-amazon.com',
       },
-    ],
-  },
+
+      {
+    protocol: "https", 
+    hostname: "**.mlstatic.com" 
+      },
+  
+      {
+    protocol: "https",
+    hostname: "outro-dominio.com"
+   },
+],
+},
 };
 
 module.exports = nextConfig;

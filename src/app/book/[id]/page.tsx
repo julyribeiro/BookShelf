@@ -2,6 +2,7 @@
 
 "use client";
 
+import React from "react";
 import { useState } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { getBooks, updateBooks } from "@/data/books";
@@ -26,9 +27,9 @@ import { useToast } from "@/components/ui/use-toast";
 export default function BookDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: promise <{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = React.use(params);
   const router = useRouter();
   const { toast } = useToast();
 
