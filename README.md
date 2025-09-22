@@ -110,11 +110,10 @@ O projeto já vem com **5 livros pré-cadastrados** em `data/books.ts`, cobrindo
 
 ## 🤝 Contribuidores  
 
-- 👨‍💻 Celso — Estrutura e Layout Global  
-- 👨‍💻 Felype — Dashboard e Estatísticas  
-- 👩‍💻 July — Biblioteca (Listagem, Cards, Detalhes e Exclusão)  
-- 👩‍💻 Márcia — Formulários (Adicionar e Editar Livro)  
-
+- 👨‍💻 Celso
+- 👨‍💻 Felype
+- 👩‍💻 July 
+- 👩‍💻 Márcia
 ---
 
 ## 📌 Observação  
