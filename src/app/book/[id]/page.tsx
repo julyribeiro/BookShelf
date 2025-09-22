@@ -27,7 +27,7 @@ import { useToast } from "@/components/ui/use-toast";
 export default function BookDetailsPage({
   params,
 }: {
-  params: promise <{ id: string }>;
+  params: Promise <{ id: string }>;
 }) {
   const { id } = React.use(params);
   const router = useRouter();
