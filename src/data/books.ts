@@ -1,7 +1,7 @@
 import { Book } from '@/types/book';
 import { v4 as uuidv4 } from "uuid";
 
-export let books: Book[] = [
+const initialBooks: Book[] = [
   {
     id: "1",
     title: "Dom Casmurro",
@@ -71,7 +71,7 @@ export let books: Book[] = [
     pages: 352,
     rating: 4.0,
     synopsis: "Um dos romances mais importantes do Naturalismo no Brasil, 'O Cortiço' retrata a vida de diversos personagens em um cortiço carioca, explorando temas como o determinismo biológico e a influência do ambiente na vida das pessoas.",
-    cover: "https://cdn.kobo.com/book-images/841c0a68-000b-4f9e-85d4-860c4eab03af/1200/1200/False/o-cortico-33.jpg",
+    cover: "https://m.media-amazon.com/images/I/41DLCoO9+yL._SY445_SX342_ML2_.jpg",
     status: "LENDO"
   },
   {
@@ -100,6 +100,23 @@ export let books: Book[] = [
   }
 ];
 
+const localStorageKey = 'bookshelf-books';
+
+// Tenta carregar os livros do localStorage. Se não houver, usa a lista inicial.
+let books: Book[] = [];
+if (typeof window !== 'undefined') {
+  const storedBooks = localStorage.getItem(localStorageKey);
+  books = storedBooks ? JSON.parse(storedBooks) : initialBooks;
+} else {
+  books = initialBooks;
+}
+
+const saveBooksToLocalStorage = (currentBooks: Book[]) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(localStorageKey, JSON.stringify(currentBooks));
+  }
+};
+
 export const getBooks = (): Book[] => {
   return books;
 };
@@ -111,16 +128,19 @@ export const getBookById = (id: string): Book | undefined => {
 export const addBook = (book: Book): void => {
   const newBook = { ...book, id: uuidv4() };
   books.push(newBook);
+  saveBooksToLocalStorage(books);
 };
 
 export const updateBooks = (updatedBooks: Book[]): void => {
   books = updatedBooks;
+  saveBooksToLocalStorage(books);
 };
 
 export const updateBook = (updatedBook: Book): void => {
   books = books.map((book) =>
     book.id === updatedBook.id ? updatedBook : book
   );
+  saveBooksToLocalStorage(books);
 };
 
 export type { Book };
