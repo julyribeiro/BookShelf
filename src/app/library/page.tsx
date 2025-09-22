@@ -1,15 +1,14 @@
-'use client';
+// src/app/library/page.tsx
+"use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from "react";
+import { getBooks, updateBooks } from "@/data/books";
 import { FaPlus, FaPencilAlt, FaTrashAlt, FaSearch } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getBooks, updateBooks } from '@/data/books';
 import { Book } from '@/types/book';
 import StarRating from '@/components/StarRating';
-
-// Importa os componentes do shadcn/ui
 import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
@@ -24,8 +23,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useSearchParams } from "next/navigation"; // Importa o hook
 
-// Definição dos gêneros e status de leitura conforme o projeto
 const genres = [
   "Todos os Gêneros",
   "Literatura Brasileira",
@@ -55,10 +54,14 @@ const statuses = [
 ];
 
 export default function LibraryPage() {
+  const searchParams = useSearchParams();
+  const initialStatus = searchParams.get('status') || 'Todos os Status';
+
   const [books, setBooks] = useState<Book[]>(getBooks());
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('Todos os Gêneros');
-  const [selectedStatus, setSelectedStatus] = useState('Todos os Status');
+  const [selectedStatus, setSelectedStatus] = useState(initialStatus);
+
   const { toast } = useToast();
 
   const handleDelete = (bookId: string) => {
@@ -81,6 +84,12 @@ export default function LibraryPage() {
       return matchesSearch && matchesGenre && matchesStatus;
     });
   }, [books, searchQuery, selectedGenre, selectedStatus]);
+
+  // Atualiza o estado do filtro de status quando a URL muda
+  useEffect(() => {
+    const newStatus = searchParams.get('status') || 'Todos os Status';
+    setSelectedStatus(newStatus);
+  }, [searchParams]);
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -145,7 +154,6 @@ export default function LibraryPage() {
           filteredBooks.map((book: Book) => (
             <div key={book.id} className="bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden">
               <div className="relative w-full h-96 group">
-                {/* Overlay com botões de ação e z-index para garantir clique */}
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
                   <div className="flex gap-4">
                     <Button asChild className="p-2 h-10 w-10 rounded-full cursor-pointer hover:bg-blue-600">
@@ -153,7 +161,6 @@ export default function LibraryPage() {
                         <FaPencilAlt className="text-white" />
                       </Link>
                     </Button>
-                    {/* Botão de Excluir com AlertDialog */}
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
@@ -181,7 +188,6 @@ export default function LibraryPage() {
                     </AlertDialog>
                   </div>
                 </div>
-
                 {book.cover ? (
                   <Image
                     src={book.cover}
@@ -197,16 +203,13 @@ export default function LibraryPage() {
                   </div>
                 )}
               </div>
-              
               <Link href={`/book/${book.id}`} className="block">
                 <div className="p-4 flex flex-col items-center text-center cursor-pointer">
                   <h2 className="text-lg font-semibold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors">{book.title}</h2>
                   <p className="text-sm text-gray-600">{book.author}</p>
-                  
                   <div className="flex items-center justify-center my-2">
                     <StarRating rating={book.rating || 0} />
                   </div>
-                  
                   {book.status && (
                     <span className="mt-2 text-xs font-medium px-2 py-1 rounded-full bg-blue-100 text-blue-800">
                       {book.status.replace('_', ' ').toUpperCase()}
