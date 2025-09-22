@@ -1,9 +1,11 @@
+// src/app/layout.tsx
+
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import './globals.css'; // Importa Tailwind e estilos globais
-import { Header } from '@/components/Header'; // Caminho relativo para components/
+import './globals.css'; 
+import { Header } from '@/components/Header'; 
 import { Footer } from '@/components/Footer';
-import { Toaster } from 'react-hot-toast'; // Importação do Toaster
+import { Toaster } from "@/components/ui/toaster"; 
 
 const inter = Inter({ subsets: ['latin'] });
 
