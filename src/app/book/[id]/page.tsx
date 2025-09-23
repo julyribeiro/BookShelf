@@ -1,5 +1,3 @@
-// src/app/book/[id]/page.tsx
-
 "use client";
 
 import React from "react";
@@ -115,9 +113,9 @@ export default function BookDetailsPage({
           </div>
         </div>
 
-        <div className="flex-1 space-y-4">
-          <h1 className="text-4xl font-bold text-gray-900">{book.title}</h1>
-          <p className="text-xl text-gray-600">por {book.author}</p>
+        <div className="w-full md:w-2/3 space-y-4">
+          <h1 className="text-4xl font-bold text-gray-900 break-words">{book.title}</h1>
+          <p className="text-xl text-gray-600 break-words">por {book.author}</p>
 
           <div className="flex flex-wrap items-center gap-4">
             {book.genre && (
@@ -137,11 +135,25 @@ export default function BookDetailsPage({
               </span>
             </div>
           </div>
-
-          <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-            {book.synopsis}
-          </p>
-
+          
+          <div className="space-y-4 pt-2">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-800 mb-1">Sinopse</h2>
+              <p className="text-gray-700 leading-relaxed break-words whitespace-pre-wrap text-justify">
+                {book.synopsis || "N/A"}
+              </p>
+            </div>
+            
+            {book.notes && (
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800 mb-1">Notas Pessoais</h2>
+                <p className="text-gray-700 leading-relaxed break-words whitespace-pre-wrap text-justify">
+                  {book.notes}
+                </p>
+              </div>
+            )}
+          </div>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
             <p>
               <strong>Páginas:</strong> {book.pages || "N/A"}

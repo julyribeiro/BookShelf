@@ -1,41 +1,52 @@
 // src/components/StarRating.tsx
-import { FaStar } from 'react-icons/fa';
-import { cn } from "@/lib/utils";
-import * as React from 'react';
 
-export interface StarRatingProps {
+import { useState } from "react";
+import { FaStar } from "react-icons/fa";
+
+interface StarRatingProps {
   rating: number;
-  onRatingChange?: (newRating: number) => void;
-  size?: number;
-  readOnly?: boolean;
+  onRatingChange?: (rating: number) => void;
 }
 
-const StarRating = React.forwardRef<HTMLDivElement, StarRatingProps>(
-  ({ rating, onRatingChange, size = 20, readOnly = false, ...props }, ref) => {
-    return (
-      <div ref={ref} className="flex items-center" {...props}>
-        {[...Array(5)].map((_, index) => {
-          const ratingValue = index + 1;
-          const isSelected = ratingValue <= rating;
-          
-          return (
-            <FaStar
-              key={index}
-              className={cn(
-                "cursor-pointer",
-                isSelected ? "text-yellow-400" : "text-gray-300",
-                readOnly && "cursor-default"
-              )}
-              size={size}
-              onClick={() => !readOnly && onRatingChange?.(ratingValue)}
-            />
-          );
-        })}
-      </div>
-    );
-  }
-);
+const StarRating: React.FC<StarRatingProps> = ({
+  rating,
+  onRatingChange,
+}) => {
+  const [hover, setHover] = useState<number | null>(null);
 
-StarRating.displayName = 'StarRating';
+  const handleRatingClick = (newRating: number) => {
+    if (onRatingChange) {
+      onRatingChange(newRating);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      {[...Array(5)].map((_, index) => {
+        const ratingValue = index + 1;
+        return (
+          <label key={ratingValue}>
+            <input
+              type="radio"
+              name="rating"
+              value={ratingValue}
+              onClick={() => handleRatingClick(ratingValue)}
+              className="hidden"
+            />
+            <FaStar
+              className="cursor-pointer"
+              color={
+                ratingValue <= (hover ?? rating) ? "#ffc107" : "#e4e5e9"
+              }
+              size={20}
+              onMouseEnter={() => setHover(ratingValue)}
+              onMouseLeave={() => setHover(null)}
+            />
+          </label>
+        );
+      })}
+    </div>
+  );
+};
 
 export default StarRating;

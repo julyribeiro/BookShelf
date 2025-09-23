@@ -20,10 +20,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { getBooks, updateBooks } from "@/data/books";
 import StarRating from "@/components/StarRating";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   FaBook,
   FaPencilAlt,
-  FaGlobe,
   FaCalendarAlt,
   FaHashtag,
   FaEye,
@@ -83,6 +83,7 @@ export default function AddBook() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [noRating, setNoRating] = useState(false); // Novo estado para a checkbox
 
   const [synopsisCount, setSynopsisCount] = useState(0);
   const [notesCount, setNotesCount] = useState(0);
@@ -130,6 +131,16 @@ export default function AddBook() {
 
   const handleRatingChange = (newRating: number) => {
     setForm((prevForm) => ({ ...prevForm, rating: newRating }));
+    if (newRating > 0) {
+      setNoRating(false);
+    }
+  };
+
+  const handleNoRatingChange = (checked: boolean) => {
+    setNoRating(checked);
+    if (checked) {
+      setForm((prevForm) => ({ ...prevForm, rating: undefined }));
+    }
   };
 
   const validate = () => {
@@ -166,7 +177,7 @@ export default function AddBook() {
         year: form.year ? Number(form.year) : undefined,
         pages: form.pages ? Number(form.pages) : undefined,
         currentPage: form.currentPage ? Number(form.currentPage) : undefined,
-        rating: form.rating ? Number(form.rating) : undefined,
+        rating: noRating ? undefined : form.rating,
         synopsis: form.synopsis || undefined,
         cover: form.cover || undefined,
         status: form.status || "QUERO_LER",
@@ -414,6 +425,39 @@ export default function AddBook() {
               </div>
             </div>
 
+            <div className="flex flex-col gap-2">
+              <Label
+                htmlFor="rating"
+                className="flex items-center gap-2 text-gray-700 font-medium"
+              >
+                <FaStar className="text-gray-500" /> Avaliação
+              </Label>
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <StarRating
+                    rating={form.rating ?? 0}
+                    onRatingChange={handleRatingChange}
+                  />
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <Checkbox
+                    id="no-rating"
+                    checked={noRating}
+                    onCheckedChange={(checked) => handleNoRatingChange(checked as boolean)}
+                  />
+                  <label
+                    htmlFor="no-rating"
+                    className="cursor-pointer"
+                  >
+                    Sem classificação
+                  </label>
+                </div>
+              </div>
+              {errors.rating && (
+                <p className="text-red-600 text-sm mt-1">{errors.rating}</p>
+              )}
+            </div>
+
             {/* Campo de URL da capa e Upload */}
             <div className="flex flex-col gap-2">
               <Label
@@ -438,7 +482,7 @@ export default function AddBook() {
                   type="file"
                   accept="image/*"
                   onChange={handleFileChange}
-                  className="cursor-pointer" 
+                  className="cursor-pointer"
                 />
               </div>
             </div>
@@ -528,30 +572,28 @@ export default function AddBook() {
               </div>
             )}
 
-            <div className="space-y-2">
-              <h3 className="text-2xl font-bold text-gray-800">
-                {form.title || " "}
-              </h3>
-              <p className="text-sm font-medium text-gray-600">
-                {form.author || " "}
-              </p>
+            <div className="space-y-2 w-full">
+              <h3 className="text-2xl font-bold text-gray-800 w-full break-words">{form.title || " "}</h3>
+              <p className="text-sm font-medium text-gray-600 w-full break-words">{form.author || " "}</p>
             </div>
 
-            {form.rating && form.rating > 0 && (
+            {form.rating && form.rating > 0 ? (
               <div className="flex justify-center">
-                <StarRating rating={form.rating} onRatingChange={() => { }} />
+                <StarRating rating={form.rating} onRatingChange={() => {}} />
               </div>
+            ) : (
+                <p className="text-sm text-gray-500">Sem classificação</p>
             )}
 
-            <p className="text-sm text-gray-500 font-semibold">
+            <p className="text-sm text-gray-500 font-semibold w-full break-words">
               {form.genre || " "}
             </p>
 
-            <p className="text-sm text-gray-700 text-justify leading-relaxed break-words">
+            <p className="text-sm text-gray-700 text-justify leading-relaxed break-words whitespace-pre-wrap">
               {form.synopsis || " "}
             </p>
 
-            <p className="text-sm text-gray-700 text-justify leading-relaxed break-words">
+            <p className="text-sm text-gray-700 text-justify leading-relaxed break-words whitespace-pre-wrap">
               {form.notes || " "}
             </p>
           </div>
