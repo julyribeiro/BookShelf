@@ -1,3 +1,5 @@
+// src/app/add-book/page.tsx
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -113,6 +115,19 @@ export default function AddBook() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setCoverPreview(base64String);
+        setForm((prevForm) => ({ ...prevForm, cover: base64String }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleRatingChange = (newRating: number) => {
     setForm((prevForm) => ({ ...prevForm, rating: newRating }));
   };
@@ -180,6 +195,8 @@ export default function AddBook() {
 
   useEffect(() => {
     if (form.cover && form.cover.startsWith("http")) {
+      setCoverPreview(form.cover);
+    } else if (form.cover && form.cover.startsWith("data:image")) {
       setCoverPreview(form.cover);
     } else {
       setCoverPreview(null);
@@ -397,34 +414,31 @@ export default function AddBook() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Campo de URL da capa e Upload */}
+            <div className="flex flex-col gap-2">
+              <Label
+                htmlFor="cover"
+                className="flex items-center gap-2 text-gray-700 font-medium"
+              >
+                <FaImage className="text-gray-500" /> Capa do Livro
+              </Label>
               <div className="flex flex-col gap-2">
-                <Label
-                  htmlFor="rating"
-                  className="flex items-center gap-2 text-gray-700 font-medium"
-                >
-                  <FaStar className="text-gray-500" /> Avaliação
-                </Label>
-                <StarRating
-                  rating={form.rating ?? 0}
-                  onRatingChange={handleRatingChange}
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Label
-                  htmlFor="cover"
-                  className="flex items-center gap-2 text-gray-700 font-medium"
-                >
-                  <FaImage className="text-gray-500" /> URL da Capa
-                </Label>
                 <Input
-                  id="cover"
+                  id="cover-url"
                   name="cover"
                   type="url"
-                  value={form.cover || ""}
+                  value={form.cover && form.cover.startsWith("http") ? form.cover : ""}
                   onChange={handleChange}
                   placeholder="https://exemplo.com/capa.jpg"
+                />
+                <span className="text-center text-gray-500 text-sm">ou</span>
+                <Input
+                  id="cover-file"
+                  name="cover-file"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="cursor-pointer" 
                 />
               </div>
             </div>
@@ -509,7 +523,7 @@ export default function AddBook() {
               <div className="w-full h-96 bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-500 text-center border-2 border-dashed border-gray-300">
                 <FaImage size={48} className="text-gray-400 mb-4" />
                 <p className="text-sm px-4">
-                  Adicione uma URL da capa para ver a pré-visualização
+                  Adicione uma URL ou faça upload da capa
                 </p>
               </div>
             )}
@@ -525,7 +539,7 @@ export default function AddBook() {
 
             {form.rating && form.rating > 0 && (
               <div className="flex justify-center">
-                <StarRating rating={form.rating} onRatingChange={() => {}} />
+                <StarRating rating={form.rating} onRatingChange={() => { }} />
               </div>
             )}
 

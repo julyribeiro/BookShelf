@@ -1,3 +1,5 @@
+// src/app/edit-book/[id]/page.tsx
+
 'use client';
 
 import { useState, useEffect } from "react";
@@ -11,7 +13,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { getBookById, updateBook, Book } from "@/data/books";
 import StarRating from "@/components/StarRating";
 import { useToast } from "@/components/ui/use-toast";
@@ -22,7 +23,7 @@ import { ReadingStatus } from "@/types/book";
 const formSchema = z.object({
   title: z.string().min(2, { message: "Título deve ter no mínimo 2 caracteres." }),
   author: z.string().min(2, { message: "Autor deve ter no mínimo 2 caracteres." }),
-  cover: z.string().url({ message: "URL inválida." }).optional().or(z.literal("")),
+  cover: z.any().optional(), 
   genre: z.string().optional(),
   year: z.string().optional(),
   pages: z.string().regex(/^\d+$/, { message: "Deve ser um número válido." }).optional().or(z.literal("")),
@@ -70,12 +71,26 @@ export default function EditBookPage({ params }: { params: { id: string } }) {
         ...fetchedBook,
         year: fetchedBook.year?.toString() || "",
         pages: fetchedBook.pages?.toString() || "",
+        cover: fetchedBook.cover || "",
       });
       if (fetchedBook.cover) {
         setCoverPreview(fetchedBook.cover);
       }
     }
-  }, [params.id]);
+  }, [params.id, form.reset]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setCoverPreview(base64String);
+        form.setValue("cover", base64String);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
@@ -122,7 +137,6 @@ export default function EditBookPage({ params }: { params: { id: string } }) {
       
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 md:p-12 flex flex-col lg:flex-row gap-12">
         
-        {/* Formulário (lado esquerdo) */}
         <div className="flex-1 lg:pr-12 lg:border-r lg:border-gray-200">
           <h2 className="text-xl font-semibold mb-2 flex items-center gap-2 text-gray-800">
             <FaInfoCircle className="text-blue-500" /> Informações do Livro
@@ -179,12 +193,35 @@ export default function EditBookPage({ params }: { params: { id: string } }) {
                   </p>
                 )}
               </div>
-              <div>
-                <Label htmlFor="cover">URL da Capa (opcional)</Label>
-                <Input id="cover" {...form.register("cover")} placeholder="https://exemplo.com/capa.jpg" />
+              
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="cover" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <FaImage className="text-gray-500" /> Capa do Livro
+                </Label>
+                <div className="flex flex-col gap-2">
+                  <Input
+                    type="url"
+                    id="cover-url"
+                    placeholder="URL da Capa (opcional)"
+                    {...form.register("cover")}
+                    value={form.watch("cover")?.startsWith("http") ? form.watch("cover") : ""}
+                    onChange={(e) => {
+                      form.setValue("cover", e.target.value);
+                      setCoverPreview(e.target.value);
+                    }}
+                    className="cursor-pointer" 
+                  />
+                  <span className="text-center text-gray-500 text-sm">ou</span>
+                  <Input
+                    type="file"
+                    id="cover-file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                </div>
                 {form.formState.errors.cover && (
                   <p className="text-red-500 text-sm mt-1">
-                    {form.formState.errors.cover.message}
+                    {form.formState.errors.cover.message as React.ReactNode}
                   </p>
                 )}
               </div>
@@ -229,7 +266,6 @@ export default function EditBookPage({ params }: { params: { id: string } }) {
           </form>
         </div>
 
-        {/* Área de Preview do Livro (lado direito) */}
         <div className="lg:w-96 flex-shrink-0 flex flex-col items-center">
           <div className="w-full bg-gray-50 rounded-xl border border-gray-200 shadow-sm p-8 text-center space-y-6 max-h-[700px] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">Pré-visualização</h2>
@@ -245,7 +281,7 @@ export default function EditBookPage({ params }: { params: { id: string } }) {
             {!coverPreview && (
               <div className="w-full h-96 bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-500 text-center border-2 border-dashed border-gray-300">
                 <FaImage size={48} className="text-gray-400 mb-4" />
-                <p className="text-sm px-4">Adicione uma URL da capa para ver a pré-visualização</p>
+                <p className="text-sm px-4">Adicione uma URL ou faça upload da capa</p>
               </div>
             )}
             
