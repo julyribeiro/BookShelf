@@ -3,7 +3,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { notFound, useRouter } from "next/navigation";
-import { getBooks, updateBooks } from "@/data/books";
+import { getBooks, updateBooks } from "../../../../data/books";
 import { Book, ReadingStatus } from "@/types/book";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";

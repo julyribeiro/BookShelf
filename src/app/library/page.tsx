@@ -3,7 +3,7 @@
 
 import { Suspense } from "react";
 import { useState, useMemo, useEffect } from "react";
-import { getBooks, updateBooks } from "@/data/books";
+import { getBooks, updateBooks } from "../../../data/books";
 import { FaPlus, FaPencilAlt, FaTrashAlt, FaSearch } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';

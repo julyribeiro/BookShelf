@@ -3,7 +3,7 @@
 import React from "react";
 import { useState } from "react";
 import { notFound, useRouter } from "next/navigation";
-import { getBooks, updateBooks } from "@/data/books";
+import { getBooks, updateBooks } from "../../../../data/books";
 import { FaEdit, FaTrash, FaArrowLeft } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
