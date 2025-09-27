@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { getBooks, updateBooks } from "@/data/books";
+import { getBooks, updateBooks } from "../../../data/books";
 import StarRating from "@/components/StarRating";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -188,7 +188,7 @@ export default function AddBook() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const existingBooks = getBooks();
-      updateBooks([...existingBooks, newBook]);
+      fetch("/api/books", { method: "POST", body: JSON.stringify(newBook) })
 
       toast.success("Livro adicionado com sucesso!");
       router.push("/library");

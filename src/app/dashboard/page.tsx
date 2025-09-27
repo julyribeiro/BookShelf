@@ -2,7 +2,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { getBooks } from "@/data/books";
+import { getBooks } from "../../../data/books";
 import { FaBook, FaPlus, FaCheck, FaHourglassHalf, FaChartBar } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
