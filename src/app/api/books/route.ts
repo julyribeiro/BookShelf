@@ -18,7 +18,7 @@ async function readBooks() {
   }
 }
 
-async function writeBooks(books: any[]) {
+async function writeBooks(books: unknown[]) {
   await fs.writeFile(DATA_PATH, JSON.stringify(books, null, 2), "utf-8");
 }
 

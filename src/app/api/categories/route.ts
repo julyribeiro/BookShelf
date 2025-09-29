@@ -18,7 +18,7 @@ async function readCats() {
   }
 }
 
-async function writeCats(items: any[]) {
+async function writeCats(items: unknown[]) {
   await fs.writeFile(DATA_PATH, JSON.stringify(items, null, 2), "utf-8");
 }
 

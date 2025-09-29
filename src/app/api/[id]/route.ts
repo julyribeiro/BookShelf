@@ -16,7 +16,7 @@ async function readBooks() {
   }
 }
 
-async function writeBooks(books: any[]) {
+async function writeBooks(books: unknown[]) {
   await fs.writeFile(DATA_PATH, JSON.stringify(books, null, 2), "utf-8");
 }
 
@@ -27,7 +27,7 @@ export async function GET(
 ) {
   const { id } = await context.params;
   const books = await readBooks();
-  const book = books.find((b: any) => b.id === id);
+  const book = books.find((b: unknown) => b.id === id);
   if (!book) return NextResponse.json({ message: "Not found" }, { status: 404 });
   return NextResponse.json(book);
 }
@@ -39,7 +39,7 @@ export async function PUT(
   const { id } = await context.params;
   const payload = await req.json();
   const books = await readBooks();
-  const idx = books.findIndex((b: any) => b.id === id);
+  const idx = books.findIndex((b: unknown) => b.id === id);
   if (idx === -1) return NextResponse.json({ message: "Not found" }, { status: 404 });
   books[idx] = { ...books[idx], ...payload };
   await writeBooks(books);
@@ -52,7 +52,7 @@ export async function DELETE(
 ) {
   const { id } = await context.params;
   const books = await readBooks();
-  const updated = books.filter((b: any) => b.id !== id);
+  const updated = books.filter((b: unknown) => b.id !== id);
   await writeBooks(updated);
   return NextResponse.json({ message: "Deleted" });
 }

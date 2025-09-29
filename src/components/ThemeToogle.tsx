@@ -21,7 +21,7 @@ export default function ThemeToggle() {
   }, [theme]);
 
   return (
-    <select value={theme} onChange={(e) => setTheme(e.target.value as any)}>
+    <select value={theme} onChange={(e) => setTheme(e.target.value as unknown)}>
       <option value="light">Light</option>
       <option value="dark">Dark</option>
       <option value="system">System</option>
