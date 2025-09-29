@@ -39,7 +39,7 @@ export async function PUT(
   const { id } = await context.params;
   const payload = await req.json();
   const books = await readBooks();
-  const idx = books.findIndex((b: book) => b.id === id);
+  const idx = books.findIndex((b: Book) => b.id === id);
   if (idx === -1) return NextResponse.json({ message: "Not found" }, { status: 404 });
   books[idx] = { ...books[idx], ...payload };
   await writeBooks(books);
@@ -52,7 +52,7 @@ export async function DELETE(
 ) {
   const { id } = await context.params;
   const books = await readBooks();
-  const updated = books.filter((b: book) => b.id !== id);
+  const updated = books.filter((b: Book) => b.id !== id);
   await writeBooks(updated);
   return NextResponse.json({ message: "Deleted" });
 }
