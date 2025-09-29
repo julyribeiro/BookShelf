@@ -1,11 +1,9 @@
 "use client";
 
-import React from "react";
-import { useState, useEffect } from "react";
-import { notFound, useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { notFound, useRouter, useParams } from "next/navigation"; // Adicione useParams aqui
 import { getBooks, updateBooks } from "../../../../data/books";
 import { Book, ReadingStatus } from "@/types/book";
-import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,9 +18,7 @@ import { Label } from "@/components/ui/label";
 import StarRating from "@/components/StarRating";
 import { Checkbox } from "@/components/ui/checkbox";
 import toast from "react-hot-toast";
-import Image from "next/image";
 import {
-  FaArrowLeft,
   FaBook,
   FaPencilAlt,
   FaCalendarAlt,
@@ -64,12 +60,8 @@ const statuses: ReadingStatus[] = [
   "ABANDONADO",
 ];
 
-export default function EditBookPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const { id } = params;
+export default function EditBookPage() {
+  const { id } = useParams<{ id: string }>(); // Pega id aqui
   const router = useRouter();
 
   const allBooks = getBooks();
@@ -344,8 +336,7 @@ export default function EditBookPage({
                   htmlFor="isbn"
                   className="flex items-center gap-2 text-gray-700 font-medium"
                 >
-                  <FaHashtag className="text-gray-500" /> ISBN (Identificador
-                  numérico do livro)
+                  <FaHashtag className="text-gray-500" /> ISBN (Identificador numérico do livro)
                 </Label>
                 <Input
                   id="isbn"
@@ -560,7 +551,7 @@ export default function EditBookPage({
                 <StarRating rating={form.rating} onRatingChange={() => {}} />
               </div>
             ) : (
-                <p className="text-sm text-gray-500">Sem classificação</p>
+              <p className="text-sm text-gray-500">Sem classificação</p>
             )}
 
             <p className="text-sm text-gray-500 font-semibold w-full break-words">
