@@ -21,8 +21,15 @@ export default function ThemeToggle() {
   }, [theme]);
 
   return (
-    <select value={theme} onChange={(e) => setTheme(e.target.value as unknown)}>
+    <select
+  value={theme}
+  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+    setTheme(e.target.value as "light" | "dark" | "system")
+  }
+>
+
       <option value="light">Light</option>
+
       <option value="dark">Dark</option>
       <option value="system">System</option>
     </select>
