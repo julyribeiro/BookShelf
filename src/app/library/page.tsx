@@ -103,7 +103,7 @@ function LibraryPageInner() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Minha Biblioteca</h1>
+        <h1 className="text-3xl font-bold text-foreground">Minha Biblioteca</h1>
         <Button asChild>
           <Link href="/add-book" className="flex items-center">
             <FaPlus className="mr-2" /> Adicionar Livro
@@ -113,7 +113,7 @@ function LibraryPageInner() {
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-1">
-          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Buscar por título ou autor..."
@@ -148,30 +148,30 @@ function LibraryPageInner() {
         </Select>
       </div>
 
-      <div className="flex items-center justify-between text-sm text-gray-600 mb-6">
+      <div className="flex items-center justify-between text-sm text-muted-foreground mb-6">
         <span>{filteredBooks.length} de {books.length} livros</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredBooks.length === 0 ? (
-          <p className="text-center col-span-full text-gray-500 text-lg">
+          <p className="text-center col-span-full text-muted-foreground text-lg">
             Nenhum livro encontrado com os filtros aplicados.
           </p>
         ) : (
           filteredBooks.map((book: Book) => (
-            <div key={book.id} className="bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden">
+            <div key={book.id} className="bg-card text-card-foreground rounded-lg shadow-lg border border-border overflow-hidden">
               <div className="relative w-full h-96 group">
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                <div className="absolute inset-0 bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
                   <div className="flex gap-4">
-                    <Button asChild className="p-2 h-10 w-10 rounded-full cursor-pointer hover:bg-blue-600">
+                    <Button asChild className="p-2 h-10 w-10 rounded-full cursor-pointer">
                       <Link href={`/edit-book/${book.id}`} className="flex items-center justify-center">
-                        <FaPencilAlt className="text-white" />
+                        <FaPencilAlt className="text-foreground" />
                       </Link>
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="destructive" className="p-2 h-10 w-10 rounded-full cursor-pointer hover:bg-red-600">
-                          <FaTrashAlt className="text-white" />
+                          <FaTrashAlt className="text-foreground" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
@@ -201,22 +201,22 @@ function LibraryPageInner() {
                     className="rounded-t-lg"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-muted-foreground">
                     Sem Capa
                   </div>
                 )}
               </div>
               <Link href={`/book/${book.id}`} className="block">
                 <div className="p-4 flex flex-col items-center text-center cursor-pointer">
-                  <h2 className="text-lg font-semibold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors">
+                  <h2 className="text-lg font-semibold text-foreground line-clamp-2 hover:text-primary transition-colors">
                     {book.title}
                   </h2>
-                  <p className="text-sm text-gray-600">{book.author}</p>
+                  <p className="text-sm text-muted-foreground">{book.author}</p>
                   <div className="flex items-center justify-center my-2">
                     <StarRating rating={book.rating || 0} />
                   </div>
                   {book.status && (
-                    <span className="mt-2 text-xs font-medium px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                    <span className="mt-2 text-xs font-medium px-2 py-1 bg-primary/10 text-primary">
                       {book.status.replace('_', ' ').toUpperCase()}
                     </span>
                   )}

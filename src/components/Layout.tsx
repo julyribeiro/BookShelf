@@ -13,7 +13,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <main className="flex-grow container mx-auto p-4">
         {children}
       </main>
-      <footer className="bg-gray-200 text-center p-4">
+      <footer className="bg-card text-card-foreground border-t border-border text-center p-4">
         © 2024 BookShelf - Todos os direitos reservados
       </footer>
     </div>
