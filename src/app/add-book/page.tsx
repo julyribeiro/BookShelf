@@ -216,7 +216,7 @@ export default function AddBook() {
 
   return (
     <div className="max-w-7xl mx-auto px-6">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">
+      <h1 className="text-3xl font-bold text-muted-foreground mb-2 text-center">
         Adicionar Novo Livro
       </h1>
       <p className="text-center text-gray-500 mb-6">
