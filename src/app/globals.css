@@ -4,32 +4,33 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* Branco */
-    --foreground: 222.2 84% 4.9%; /* Cinza escuro */
-    --card: 0 0% 100%; /* Branco */
+    /* ... (Sem alterações no modo light) ... */
+    --background: 0 0% 100%; 
+    --foreground: 222.2 84% 4.9%; 
+    --card: 0 0% 100%; 
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%; /* Azul blue-600 */
-    --primary-foreground: 210 40% 98%; /* Branco para texto em primary */
-    --secondary: 210 40% 96%; /* Cinza claro */
+    --primary: 221.2 83.2% 53.3%; 
+    --primary-foreground: 210 40% 98%; 
+    --secondary: 210 40% 96%; 
     --secondary-foreground: 222.2 84% 4.9%;
     --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96%;
     --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%; /* Vermelho para erros */
+    --destructive: 0 84.2% 60.2%; 
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%; /* Cinza claro */
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%; /* Azul para foco */
+    --border: 214.3 31.8% 91.4%; 
+    --input: 214.3 31.8% 91.4%; 
+    --ring: 221.2 83.2% 53.3%; 
     --radius: 0.5rem;
   }
 
   .dark {
-    /* Suporte opcional a dark mode - adicione se quiser no futuro */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* ... (Restante do dark mode, sem alterações exceto em --input e --foreground) ... */
+    --background: 222.2 84% 4.9%; /* Fundo escuro */
+    --foreground: 210 40% 98%; /* Texto CLARO do corpo */
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
@@ -45,9 +46,28 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    
+    /* >>> MUDANÇA CRÍTICA: INPUT CLARO NO DARK MODE <<< */
+    --input: 0 0% 90%; /* Cinza muito claro, quase branco. Isso fará o input CLARO. */
+    
     --ring: 217.2 91.2% 59.8%;
   }
+
+  .dark input,
+  .dark textarea,
+  .dark select {
+    /* Define o texto como escuro, usando a cor do foreground do LIGHT MODE */
+    color: hsl(222.2 84% 4.9%) !important; 
+    /* Garante que o fundo use a nova cor CLARA */
+    background-color: hsl(var(--input)) !important; 
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    /* Placeholder um pouco mais escuro que o texto para contraste */
+    color: hsl(var(--muted-foreground)) !important; 
+  }
+
 
   * {
     @apply border-border;

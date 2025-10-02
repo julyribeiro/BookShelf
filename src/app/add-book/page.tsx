@@ -443,12 +443,11 @@ export default function AddBook() {
                   <Checkbox
                     id="no-rating"
                     checked={noRating}
-                    onCheckedChange={(checked) => handleNoRatingChange(checked as boolean)}
+                    onCheckedChange={(checked) =>
+                      handleNoRatingChange(checked as boolean)
+                    }
                   />
-                  <label
-                    htmlFor="no-rating"
-                    className="cursor-pointer"
-                  >
+                  <label htmlFor="no-rating" className="cursor-pointer">
                     Sem classificação
                   </label>
                 </div>
@@ -471,22 +470,25 @@ export default function AddBook() {
                   id="cover-url"
                   name="cover"
                   type="url"
-                  value={form.cover && form.cover.startsWith("http") ? form.cover : ""}
+                  value={
+                    form.cover && form.cover.startsWith("http")
+                      ? form.cover
+                      : ""
+                  }
                   onChange={handleChange}
                   placeholder="https://exemplo.com/capa.jpg"
                 />
                 <span className="text-center text-gray-500 text-sm">ou</span>
-                <Input
-                  id="cover-file"
-                  name="cover-file"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="cursor-pointer"
-                />
-              </div>
-            </div>
-
+                <Input
+                  id="cover-file"
+                  name="cover-file"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="cursor-pointer file:text-gray-700 dark:file:text-gray-200 dark:file:bg-gray-700 dark:file:border-gray-600 dark:file:border-r dark:border-gray-600 dark:bg-gray-800" 
+                />
+              </div>
+            </div>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <Label
@@ -543,7 +545,8 @@ export default function AddBook() {
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
-                className="flex-1 text-gray-700 border-gray-300 hover:bg-gray-100"
+                className="flex-1 border-gray-400 text-gray-700 hover:bg-gray-100 
+             dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
               >
                 Cancelar
               </Button>
@@ -553,7 +556,8 @@ export default function AddBook() {
 
         {/* Área de Preview do Livro (lado direito) */}
         <div className="lg:w-96 flex-shrink-0 flex flex-col items-center">
-          <h2 className="text-xl font-bold mb-4">Pré-visualização</h2>
+          <h2 className="text-xl font-bold mb-4
+                         dark: text-gray-900">Pré-visualização</h2>
           <div className="w-full bg-gray-50 rounded-xl border border-gray-200 shadow-sm p-8 text-center space-y-6 max-h-[700px] overflow-y-auto">
             {coverPreview && (
               <img
@@ -573,8 +577,12 @@ export default function AddBook() {
             )}
 
             <div className="space-y-2 w-full">
-              <h3 className="text-2xl font-bold text-gray-800 w-full break-words">{form.title || " "}</h3>
-              <p className="text-sm font-medium text-gray-600 w-full break-words">{form.author || " "}</p>
+              <h3 className="text-2xl font-bold text-gray-800 w-full break-words">
+                {form.title || " "}
+              </h3>
+              <p className="text-sm font-medium text-gray-600 w-full break-words">
+                {form.author || " "}
+              </p>
             </div>
 
             {form.rating && form.rating > 0 ? (
@@ -582,7 +590,7 @@ export default function AddBook() {
                 <StarRating rating={form.rating} onRatingChange={() => {}} />
               </div>
             ) : (
-                <p className="text-sm text-gray-500">Sem classificação</p>
+              <p className="text-sm text-gray-500">Sem classificação</p>
             )}
 
             <p className="text-sm text-gray-500 font-semibold w-full break-words">
