@@ -1,7 +1,7 @@
 import { Book } from '@/types/book';
 import { v4 as uuidv4 } from "uuid";
 
-const initialBooks: Book[] = [
+export const initialBooks: Book[] = [
   {
     id: "1",
     title: "Dom Casmurro",
