@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/* o resto do schema é idêntico ao anterior — copie o enum + models */
+enum ReadingStatus {
+  QUERO_LER
+  LENDO
+  LIDO
+  PAUSADO
+  ABANDONADO
+}
+
+model Genre {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  books Book[]
+}
+
+model Book {
+  id          Int           @id @default(autoincrement())
+  title       String
+  author      String
+  year        Int?
+  pages       Int?
+  rating      Float?
+  synopsis    String?
+  cover       String?
+
+  status      ReadingStatus @default(QUERO_LER)
+  currentPage Int           @default(0)
+  isbn        String?       @unique
+  notes       String?
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  genreId     Int
+  genre       Genre         @relation(fields: [genreId], references: [id])
+}
