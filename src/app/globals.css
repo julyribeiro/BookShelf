@@ -48,7 +48,7 @@
     --border: 217.2 32.6% 17.5%;
     
     /* >>> MUDANÇA CRÍTICA: INPUT CLARO NO DARK MODE <<< */
-    --input: 0 0% 90%; /* Cinza muito claro, quase branco. Isso fará o input CLARO. */
+    --input: 217.2 32.6% 17.5%; /* Cinza muito claro, quase branco. Isso fará o input CLARO. */
     
     --ring: 217.2 91.2% 59.8%;
   }
