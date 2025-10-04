@@ -22,7 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
+    // CORREÇÃO: Adicionando suppressHydrationWarning={true} ao <html>
+    <html lang="pt-BR" suppressHydrationWarning={true}>
       <body
         className={`${inter.className} antialiased min-h-screen flex flex-col`}
         suppressHydrationWarning={true}
