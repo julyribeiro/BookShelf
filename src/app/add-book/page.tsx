@@ -1,12 +1,10 @@
-// src/app/add-book/page.tsx
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { Book, ReadingStatus } from "@/types/book";
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,6 +20,16 @@ import { getBooks, updateBooks } from "@/data/books";
 import StarRating from "@/components/StarRating";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   FaBook,
   FaPencilAlt,
   FaCalendarAlt,
@@ -36,6 +44,23 @@ import {
   FaFile,
   FaSortNumericUpAlt,
 } from "react-icons/fa";
+
+type FormReadingStatus = ReadingStatus | null;
+
+interface BookFormState {
+  title: string;
+  author: string;
+  genre: string | undefined;
+  year: number | undefined;
+  pages: number | undefined;
+  currentPage: number | undefined;
+  rating: number | undefined;
+  synopsis: string;
+  cover: string;
+  status: FormReadingStatus;
+  isbn: string;
+  notes: string;
+}
 
 const genres = [
   "Literatura Brasileira",
@@ -66,24 +91,28 @@ const statuses: ReadingStatus[] = [
 
 export default function AddBook() {
   const router = useRouter();
-  const [form, setForm] = useState<Partial<Book>>({
+  const { toast } = useToast();
+  
+  const [form, setForm] = useState<BookFormState>({
     title: "",
     author: "",
-    genre: "",
+    genre: undefined,
     year: undefined,
     pages: undefined,
     currentPage: undefined,
     rating: undefined,
     synopsis: "",
     cover: "",
-    status: undefined,
+    status: null,
     isbn: "",
     notes: "",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const [noRating, setNoRating] = useState(false); // Novo estado para a checkbox
+  const [noRating, setNoRating] = useState(false);
+  
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [synopsisCount, setSynopsisCount] = useState(0);
   const [notesCount, setNotesCount] = useState(0);
@@ -116,6 +145,18 @@ export default function AddBook() {
     }
   };
 
+  const handleSelectChange = (name: keyof BookFormState, value: string) => {
+    const newValue = name === "status" 
+        ? (value === "" ? null : (value as FormReadingStatus)) 
+        : value;
+
+    setForm({ ...form, [name]: newValue });
+
+    if (errors[name as keyof typeof errors]) {
+      setErrors({ ...errors, [name]: "" });
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -134,6 +175,9 @@ export default function AddBook() {
     if (newRating > 0) {
       setNoRating(false);
     }
+    if (errors.rating) {
+      setErrors({ ...errors, rating: "" });
+    }
   };
 
   const handleNoRatingChange = (checked: boolean) => {
@@ -145,29 +189,59 @@ export default function AddBook() {
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
-    if (!form.title?.trim()) newErrors.title = "Título é obrigatório";
-    if (!form.author?.trim()) newErrors.author = "Autor é obrigatório";
-    if (form.pages && form.pages < 1)
-      newErrors.pages = "Total de páginas deve ser positivo";
-    if (form.currentPage && form.currentPage > (form.pages || 0))
-      newErrors.currentPage = "Página atual não pode exceder o total";
-    if (form.rating && (form.rating < 1 || form.rating > 5))
-      newErrors.rating = "Avaliação deve ser entre 1 e 5";
-    if (form.year && (form.year < 0 || form.year > new Date().getFullYear()))
-      newErrors.year = "Ano inválido";
+    const currentYear = new Date().getFullYear();
+
+    // Campos Obrigatórios
+    if (!form.title?.trim()) newErrors.title = "Por favor, informe o título do livro.";
+    if (!form.author?.trim()) newErrors.author = "Por favor, informe o nome do autor.";
+    
+    // Validação de Status (Checa se é null)
+    if (form.status === null) { 
+        newErrors.status = "Por favor, selecione um status de leitura.";
+    }
+    
+    // Validação de Números (Pages e Year)
+    if (form.pages !== undefined) {
+      if (form.pages <= 0) {
+        newErrors.pages = "O total de páginas deve ser um número positivo (maior que zero).";
+      }
+    }
+    if (form.year !== undefined) {
+      if (form.year > currentYear) {
+        newErrors.year = `O ano não pode ser no futuro. Ano máximo permitido: ${currentYear}.`;
+      }
+      if (form.year < 1000) {
+        newErrors.year = "Ano de publicação inválido.";
+      }
+    }
+
+    // Validação de Progresso de Leitura (CurrentPage)
+    if (form.currentPage !== undefined) {
+      if (form.currentPage < 0) {
+        newErrors.currentPage = "Página atual não pode ser um número negativo.";
+      }
+      if (form.pages !== undefined && form.pages > 0) {
+        if (form.currentPage > form.pages) {
+          newErrors.currentPage = `A página atual (${form.currentPage}) não pode exceder o total de páginas (${form.pages}).`;
+        }
+      } else if (form.currentPage > 0) {
+        newErrors.pages = "Se você está preenchendo a Página Atual, o Total de Páginas é recomendado.";
+      }
+    }
+
+    // Validação de Rating
+    if (!noRating && form.rating === undefined && form.status === "LIDO") {
+      newErrors.rating = "Se o livro está 'LIDO', é recomendado dar uma avaliação (ou marcar 'Sem classificação').";
+    }
+
     return newErrors;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      toast.error("Por favor, corrija os erros no formulário");
-      return;
-    }
-
+  // Lógica Final de Salvamento
+  const handleSaveBook = async () => {
     setLoading(true);
+
+    let success = false;
     try {
       const newBook: Book = {
         id: uuidv4(),
@@ -180,28 +254,66 @@ export default function AddBook() {
         rating: noRating ? undefined : form.rating,
         synopsis: form.synopsis || undefined,
         cover: form.cover || undefined,
-        status: form.status || "QUERO_LER",
+        status: form.status as ReadingStatus, 
         isbn: form.isbn || undefined,
         notes: form.notes || undefined,
       };
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Simulação de delay de 3s para o usuário ver a mensagem de loading
+      await new Promise((resolve) => setTimeout(resolve, 3000));
 
       const existingBooks = getBooks();
       updateBooks([...existingBooks, newBook]);
+      
+      success = true;
 
-      toast.success("Livro adicionado com sucesso!");
-      router.push("/library");
     } catch (error) {
-      toast.error("Erro ao adicionar livro. Tente novamente.");
+      toast({
+          title: "Erro",
+          description: "Erro ao adicionar livro. Tente novamente.",
+          variant: "destructive",
+      });
     } finally {
-      setLoading(false);
-      setForm({ title: "", author: "", genre: "", status: "QUERO_LER" });
+      setLoading(false); 
+      setIsDialogOpen(false); 
+      
+      if (success) {
+        router.push("/library?status=added");
+      }
     }
   };
 
+  // Lógica de Pré-submissão
+  const handlePreSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const validationErrors = validate();
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      toast({
+        title: "Erro de Validação",
+        description: "Por favor, corrija os campos obrigatórios.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsDialogOpen(true);
+  };
+
   const totalFields = 13;
-  const filledFields = Object.values(form).filter(Boolean).length;
+  const filledFields = Object.keys(form).filter(key => {
+    const value = form[key as keyof typeof form]; 
+    
+    if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
+      return false;
+    }
+    
+    if (key === 'rating' && (value === undefined || value === 0)) {
+        return false;
+    }
+    return true;
+  }).length;
   const progress = Math.round((filledFields / totalFields) * 100);
 
   useEffect(() => {
@@ -241,14 +353,14 @@ export default function AddBook() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handlePreSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="title"
                   className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaBook className="text-muted-foreground" /> Título *
+                  <FaBook className="text-muted-foreground" /> Título <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="title"
@@ -256,8 +368,7 @@ export default function AddBook() {
                   type="text"
                   value={form.title || ""}
                   onChange={handleChange}
-                  className={errors.title ? "text-destructive" : ""}
-                  required
+                  className={errors.title ? "border-destructive focus-visible:ring-destructive" : ""}
                 />
                 {errors.title && (
                   <p className="text-destructive text-sm mt-1">{errors.title}</p>
@@ -269,7 +380,7 @@ export default function AddBook() {
                   htmlFor="author"
                   className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaUser className="text-muted-foreground" /> Autor *
+                  <FaUser className="text-muted-foreground" /> Autor <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="author"
@@ -277,8 +388,7 @@ export default function AddBook() {
                   type="text"
                   value={form.author || ""}
                   onChange={handleChange}
-                  className={errors.author ? "text-destructive" : ""}
-                  required
+                  className={errors.author ? "border-destructive focus-visible:ring-destructive" : ""}
                 />
                 {errors.author && (
                   <p className="text-destructive text-sm mt-1">{errors.author}</p>
@@ -296,7 +406,7 @@ export default function AddBook() {
                 </Label>
                 <Select
                   value={form.genre || ""}
-                  onValueChange={(value) => setForm({ ...form, genre: value })}
+                  onValueChange={(value) => handleSelectChange("genre", value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um gênero" />
@@ -324,7 +434,7 @@ export default function AddBook() {
                   type="number"
                   value={form.year ?? ""}
                   onChange={handleChange}
-                  className={errors.year ? "text-destructive" : ""}
+                  className={errors.year ? "border-destructive focus-visible:ring-destructive" : ""}
                   min="0"
                   max={new Date().getFullYear()}
                 />
@@ -348,7 +458,7 @@ export default function AddBook() {
                   type="number"
                   value={form.pages ?? ""}
                   onChange={handleChange}
-                  className={errors.pages ? "text-destructive" : ""}
+                  className={errors.pages ? "border-destructive focus-visible:ring-destructive" : ""}
                   min="1"
                 />
                 {errors.pages && (
@@ -388,8 +498,9 @@ export default function AddBook() {
                   type="number"
                   value={form.currentPage ?? ""}
                   onChange={handleChange}
-                  className={errors.currentPage ? "text-destructive" : ""}
+                  className={errors.currentPage ? "border-destructive focus-visible:ring-destructive" : ""}
                   min="0"
+                  max={form.pages ?? undefined}
                 />
                 {errors.currentPage && (
                   <p className="text-destructive text-sm mt-1">
@@ -403,16 +514,16 @@ export default function AddBook() {
                   htmlFor="status"
                   className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaEye className="text-muted-foreground" /> Status de Leitura
+                  <FaEye className="text-muted-foreground" /> Status de Leitura <span className="text-destructive">*</span>
                 </Label>
                 <Select
-                  value={form.status}
+                  value={form.status || ""}
                   onValueChange={(value) =>
-                    setForm({ ...form, status: value as ReadingStatus })
+                    handleSelectChange("status", value)
                   }
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o status" />
+                  <SelectTrigger className={errors.status ? "border-destructive focus-visible:ring-destructive" : ""}>
+                    <SelectValue placeholder="Selecione o status" /> 
                   </SelectTrigger>
                   <SelectContent>
                     {statuses.map((status) => (
@@ -422,6 +533,9 @@ export default function AddBook() {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.status && (
+                  <p className="text-destructive text-sm mt-1">{errors.status}</p>
+                )}
               </div>
             </div>
 
@@ -437,6 +551,7 @@ export default function AddBook() {
                   <StarRating
                     rating={form.rating ?? 0}
                     onRatingChange={handleRatingChange}
+                    disabled={noRating}
                   />
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -489,6 +604,7 @@ export default function AddBook() {
                 />
               </div>
             </div>
+            
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <Label
@@ -535,11 +651,20 @@ export default function AddBook() {
 
             <div className="flex gap-4 mt-4">
               <Button
-                type="submit"
+                type="submit" 
                 disabled={loading}
                 className="flex-1 bg-primary hover:bg-priamary/90 text-primary-foreground"
               >
-                {loading ? "Adicionando..." : "Adicionar Livro"}
+                {/* Lógica para o botão Adicionar Livro (primário) */}
+                {loading ? (
+                    <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Salvando Informações...
+                    </>
+                ) : "Adicionar Livro"}
               </Button>
               <Button
                 type="button"
@@ -555,14 +680,13 @@ export default function AddBook() {
 
         {/* Área de Preview do Livro (lado direito) */}
         <div className="lg:w-96 flex-shrink-0 flex flex-col items-center">
-          <h2 className="text-xl font-bold mb-4
-                         dark: text-foreground">Pré-visualização</h2>
+          <h2 className="text-xl font-bold mb-4 dark:text-foreground">Pré-visualização</h2>
           <div className="w-full bg-card rounded-xl border border-border shadow-sm p-8 text-center space-y-6 max-h-[700px] overflow-y-auto">
             {coverPreview && (
               <img
                 src={coverPreview}
                 alt="Preview da capa"
-                className="w-full h-96 mx-auto rounded-lg shadow-lg object-cover transform transition-transform duration-300 hover:scale-105"
+                className="w-full h-96 mx-auto rounded-lg shadow-lg object-contain transform transition-transform duration-300 hover:scale-105"
                 onError={() => setCoverPreview(null)}
               />
             )}
@@ -586,26 +710,66 @@ export default function AddBook() {
 
             {form.rating && form.rating > 0 ? (
               <div className="flex justify-center">
-                <StarRating rating={form.rating} onRatingChange={() => { }} />
+                <StarRating rating={form.rating} disabled={true} />
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Sem classificação</p>
+              <p className="text-sm text-muted-foreground">
+                {noRating ? "Sem classificação" : " "}
+              </p>
             )}
 
             <p className="text-sm text-muted-foreground font-semibold w-full break-words">
               {form.genre || " "}
             </p>
 
-            <p className="text-sm text-foreground text-justify leading-relaxed break-words whitespace-pre-wrap">
-              {form.synopsis || " "}
-            </p>
+            {form.synopsis || form.notes ? (
+                <>
+                <p className="text-sm text-foreground text-justify leading-relaxed break-words whitespace-pre-wrap">
+                    {form.synopsis || " "}
+                </p>
 
-            <p className="text-sm text-foreground text-justify leading-relaxed break-words whitespace-pre-wrap">
-              {form.notes || " "}
-            </p>
+                <p className="text-sm text-muted-foreground text-justify leading-relaxed break-words whitespace-pre-wrap border-t pt-4 mt-4 border-border">
+                    {form.notes || " "}
+                </p>
+                </>
+            ) : (
+                <p> </p>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Diálogo de Confirmação */}
+      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <AlertDialogContent>
+              <AlertDialogHeader>
+                  <AlertDialogTitle>Confirmar Adição de Livro</AlertDialogTitle>
+                  <AlertDialogDescription>
+                      Tem certeza de que deseja salvar o livro "<span className="font-semibold">{form.title || 'Novo Livro'}</span>" na sua biblioteca?
+                  </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                  <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction 
+                      onClick={handleSaveBook} 
+                      disabled={loading}
+                      className="bg-primary hover:bg-priamary/90 text-primary-foreground"
+                  >
+                      {/* Lógica para o botão Salvar Livro (dentro do diálogo) */}
+                      {loading ? (
+                          <>
+                              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Salvando Informações...
+                          </>
+                      ) : "Salvar Livro"}
+                  </AlertDialogAction>
+              </AlertDialogFooter>
+          </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 }

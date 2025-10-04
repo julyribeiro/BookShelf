@@ -36,7 +36,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation"; // <<< NOVO IMPORT: useRouter
 
 const genres = [
   "Todos os Gêneros",
@@ -95,6 +95,7 @@ export default function LibraryPage() {
 
 // ======== COMPONENTE PRINCIPAL (usa useSearchParams) ========
 function LibraryPageInner() {
+  const router = useRouter(); // <<< NOVO
   const searchParams = useSearchParams();
   const initialStatus = searchParams.get("status") || "Todos os Status";
 
@@ -128,10 +129,33 @@ function LibraryPageInner() {
     });
   }, [books, searchQuery, selectedGenre, selectedStatus]);
 
+  // Efeito para sincronizar o status do filtro com o searchParams
   useEffect(() => {
     const newStatus = searchParams.get("status") || "Todos os Status";
     setSelectedStatus(newStatus);
   }, [searchParams]);
+
+  // Efeito para exibir o Toast de Sucesso e limpar o parâmetro da URL
+  useEffect(() => {
+    const status = searchParams.get("status");
+
+    if (status === 'added') {
+        // Exibe o "modalzinho" de sucesso (Toast)
+        toast({
+            title: "Livro adicionado!",
+            description: "O novo livro foi salvo na sua biblioteca com sucesso.",
+            duration: 5000,
+        });
+
+        // Limpa o parâmetro da URL
+        router.replace("/library", { scroll: false }); 
+    }
+    // Adicione a lógica para 'edited' e 'deleted' se você ainda não o fez, usando o mesmo padrão:
+    // if (status === 'edited') { ... }
+    // if (status === 'deleted') { ... }
+
+  }, [searchParams, toast, router]);
+
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -236,7 +260,7 @@ function LibraryPageInner() {
                       <Link
                         href={`/edit-book/${book.id}`}
                         className="flex items-center justify-center"
-                      >
+                        >
                         <FaPencilAlt className="text-white" />
                       </Link>
                     </Button>
