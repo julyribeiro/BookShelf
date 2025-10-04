@@ -219,24 +219,24 @@ export default function AddBook() {
       <h1 className="text-3xl font-bold text-muted-foreground mb-2 text-center">
         Adicionar Novo Livro
       </h1>
-      <p className="text-center text-gray-500 mb-6">
+      <p className="text-center text-muted-foreground mb-6">
         Preencha as informações do livro para adicioná-lo à sua biblioteca.
       </p>
 
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 md:p-12 flex flex-col lg:flex-row gap-12">
+      <div className="bg-card rounded-xl shadow-lg border border-border p-6 md:p-12 flex flex-col lg:flex-row gap-12">
         {/* Formulário (lado esquerdo) */}
-        <div className="flex-1 lg:pr-12 lg:border-r lg:border-gray-200">
+        <div className="flex-1 lg:pr-12 lg:border-r lg:border-border">
           <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-2 flex items-center gap-2 text-gray-800">
-              <FaInfoCircle className="text-blue-500" /> Informações do Livro
+            <h2 className="text-xl font-semibold mb-2 flex items-center gap-2 text-foreground">
+              <FaInfoCircle className="text-primary" /> Informações do Livro
             </h2>
-            <div className="w-full bg-gray-200 rounded-full h-1.5">
+            <div className="w-full bg-muted rounded-full h-1.5">
               <div
-                className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                className="bg-primary h-1.5 rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="text-right text-sm text-gray-500 mt-1">
+            <p className="text-right text-sm text-muted-foreground mt-1">
               {progress}% completos
             </p>
           </div>
@@ -246,9 +246,9 @@ export default function AddBook() {
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="title"
-                  className="flex items-center gap-2 text-gray-700 font-medium"
+                  className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaBook className="text-gray-500" /> Título *
+                  <FaBook className="text-muted-foreground" /> Título *
                 </Label>
                 <Input
                   id="title"
@@ -256,20 +256,20 @@ export default function AddBook() {
                   type="text"
                   value={form.title || ""}
                   onChange={handleChange}
-                  className={errors.title ? "border-red-500" : ""}
+                  className={errors.title ? "text-destructive" : ""}
                   required
                 />
                 {errors.title && (
-                  <p className="text-red-600 text-sm mt-1">{errors.title}</p>
+                  <p className="text-destructive text-sm mt-1">{errors.title}</p>
                 )}
               </div>
 
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="author"
-                  className="flex items-center gap-2 text-gray-700 font-medium"
+                  className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaUser className="text-gray-500" /> Autor *
+                  <FaUser className="text-muted-foreground" /> Autor *
                 </Label>
                 <Input
                   id="author"
@@ -277,11 +277,11 @@ export default function AddBook() {
                   type="text"
                   value={form.author || ""}
                   onChange={handleChange}
-                  className={errors.author ? "border-red-500" : ""}
+                  className={errors.author ? "text-destructive" : ""}
                   required
                 />
                 {errors.author && (
-                  <p className="text-red-600 text-sm mt-1">{errors.author}</p>
+                  <p className="text-destructive text-sm mt-1">{errors.author}</p>
                 )}
               </div>
             </div>
@@ -290,9 +290,9 @@ export default function AddBook() {
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="genre"
-                  className="flex items-center gap-2 text-gray-700 font-medium"
+                  className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaTag className="text-gray-500" /> Gênero
+                  <FaTag className="text-muted-foreground" /> Gênero
                 </Label>
                 <Select
                   value={form.genre || ""}
@@ -314,9 +314,9 @@ export default function AddBook() {
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="year"
-                  className="flex items-center gap-2 text-gray-700 font-medium"
+                  className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaCalendarAlt className="text-gray-500" /> Ano de Publicação
+                  <FaCalendarAlt className="text-muted-foreground" /> Ano de Publicação
                 </Label>
                 <Input
                   id="year"
@@ -324,12 +324,12 @@ export default function AddBook() {
                   type="number"
                   value={form.year ?? ""}
                   onChange={handleChange}
-                  className={errors.year ? "border-red-500" : ""}
+                  className={errors.year ? "text-destructive" : ""}
                   min="0"
                   max={new Date().getFullYear()}
                 />
                 {errors.year && (
-                  <p className="text-red-600 text-sm mt-1">{errors.year}</p>
+                  <p className="text-destructive text-sm mt-1">{errors.year}</p>
                 )}
               </div>
             </div>
@@ -338,9 +338,9 @@ export default function AddBook() {
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="pages"
-                  className="flex items-center gap-2 text-gray-700 font-medium"
+                  className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaFile className="text-gray-500" /> Total de Páginas
+                  <FaFile className="text-muted-foreground" /> Total de Páginas
                 </Label>
                 <Input
                   id="pages"
@@ -348,20 +348,20 @@ export default function AddBook() {
                   type="number"
                   value={form.pages ?? ""}
                   onChange={handleChange}
-                  className={errors.pages ? "border-red-500" : ""}
+                  className={errors.pages ? "text-destructive" : ""}
                   min="1"
                 />
                 {errors.pages && (
-                  <p className="text-red-600 text-sm mt-1">{errors.pages}</p>
+                  <p className="text-destructive text-sm mt-1">{errors.pages}</p>
                 )}
               </div>
 
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="isbn"
-                  className="flex items-center gap-2 text-gray-700 font-medium"
+                  className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaHashtag className="text-gray-500" /> ISBN (Identificador
+                  <FaHashtag className="text-muted-foreground" /> ISBN (Identificador
                   numérico do livro)
                 </Label>
                 <Input
@@ -378,9 +378,9 @@ export default function AddBook() {
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="currentPage"
-                  className="flex items-center gap-2 text-gray-700 font-medium"
+                  className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaSortNumericUpAlt className="text-gray-500" /> Página Atual
+                  <FaSortNumericUpAlt className="text-muted-foreground" /> Página Atual
                 </Label>
                 <Input
                   id="currentPage"
@@ -388,11 +388,11 @@ export default function AddBook() {
                   type="number"
                   value={form.currentPage ?? ""}
                   onChange={handleChange}
-                  className={errors.currentPage ? "border-red-500" : ""}
+                  className={errors.currentPage ? "text-destructive" : ""}
                   min="0"
                 />
                 {errors.currentPage && (
-                  <p className="text-red-600 text-sm mt-1">
+                  <p className="text-destructive text-sm mt-1">
                     {errors.currentPage}
                   </p>
                 )}
@@ -401,9 +401,9 @@ export default function AddBook() {
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="status"
-                  className="flex items-center gap-2 text-gray-700 font-medium"
+                  className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaEye className="text-gray-500" /> Status de Leitura
+                  <FaEye className="text-muted-foreground" /> Status de Leitura
                 </Label>
                 <Select
                   value={form.status}
@@ -428,9 +428,9 @@ export default function AddBook() {
             <div className="flex flex-col gap-2">
               <Label
                 htmlFor="rating"
-                className="flex items-center gap-2 text-gray-700 font-medium"
+                className="flex items-center gap-2 text-foreground font-medium"
               >
-                <FaStar className="text-gray-500" /> Avaliação
+                <FaStar className="text-muted-foreground" /> Avaliação
               </Label>
               <div className="flex items-center gap-4">
                 <div className="flex-1">
@@ -439,7 +439,7 @@ export default function AddBook() {
                     onRatingChange={handleRatingChange}
                   />
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <Checkbox
                     id="no-rating"
                     checked={noRating}
@@ -453,7 +453,7 @@ export default function AddBook() {
                 </div>
               </div>
               {errors.rating && (
-                <p className="text-red-600 text-sm mt-1">{errors.rating}</p>
+                <p className="text-destructive text-sm mt-1">{errors.rating}</p>
               )}
             </div>
 
@@ -461,9 +461,9 @@ export default function AddBook() {
             <div className="flex flex-col gap-2">
               <Label
                 htmlFor="cover"
-                className="flex items-center gap-2 text-gray-700 font-medium"
+                className="flex items-center gap-2 text-foreground font-medium"
               >
-                <FaImage className="text-gray-500" /> Capa do Livro
+                <FaImage className="text-muted-foreground" /> Capa do Livro
               </Label>
               <div className="flex flex-col gap-2">
                 <Input
@@ -478,24 +478,24 @@ export default function AddBook() {
                   onChange={handleChange}
                   placeholder="https://exemplo.com/capa.jpg"
                 />
-                <span className="text-center text-gray-500 text-sm">ou</span>
-                <Input
-                  id="cover-file"
-                  name="cover-file"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="cursor-pointer file:text-gray-700 dark:file:text-gray-200 dark:file:bg-gray-700 dark:file:border-gray-600 dark:file:border-r dark:border-gray-600 dark:bg-gray-800" 
-                />
-              </div>
-            </div>
+                <span className="text-center text-muted-foreground text-sm">ou</span>
+                <Input
+                  id="cover-file"
+                  name="cover-file"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="cursor-pointer file:text-foreground dark:file:text-muted-foreground dark:file:bg-card dark:file:border-border dark:file:border-r dark:border-gray-600 dark:bg-gray-800"
+                />
+              </div>
+            </div>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="synopsis"
-                  className="flex items-center gap-2 text-gray-700 font-medium"
+                  className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaPencilAlt className="text-gray-500" /> Sinopse
+                  <FaPencilAlt className="text-muted-foreground" /> Sinopse
                 </Label>
                 <Textarea
                   id="synopsis"
@@ -506,7 +506,7 @@ export default function AddBook() {
                   placeholder="Descrição detalhada do livro..."
                   maxLength={1000}
                 />
-                <div className="text-right text-sm text-gray-500 mt-1">
+                <div className="text-right text-sm text-muted-foreground mt-1">
                   {synopsisCount}/1000
                 </div>
               </div>
@@ -514,9 +514,9 @@ export default function AddBook() {
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="notes"
-                  className="flex items-center gap-2 text-gray-700 font-medium"
+                  className="flex items-center gap-2 text-foreground font-medium"
                 >
-                  <FaStickyNote className="text-gray-500" /> Notas Pessoais
+                  <FaStickyNote className="text-muted-foreground" /> Notas Pessoais
                 </Label>
                 <Textarea
                   id="notes"
@@ -527,7 +527,7 @@ export default function AddBook() {
                   placeholder="Suas observações..."
                   maxLength={1000}
                 />
-                <div className="text-right text-sm text-gray-500 mt-1">
+                <div className="text-right text-sm text-muted-foreground mt-1">
                   {notesCount}/1000
                 </div>
               </div>
@@ -537,7 +537,7 @@ export default function AddBook() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                className="flex-1 bg-primary hover:bg-priamary/90 text-primary-foreground"
               >
                 {loading ? "Adicionando..." : "Adicionar Livro"}
               </Button>
@@ -545,8 +545,7 @@ export default function AddBook() {
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
-                className="flex-1 border-gray-400 text-gray-700 hover:bg-gray-100 
-             dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
+                className="flex-1 text-foreground border border-border hover:bg-muted"
               >
                 Cancelar
               </Button>
@@ -557,8 +556,8 @@ export default function AddBook() {
         {/* Área de Preview do Livro (lado direito) */}
         <div className="lg:w-96 flex-shrink-0 flex flex-col items-center">
           <h2 className="text-xl font-bold mb-4
-                         dark: text-gray-900">Pré-visualização</h2>
-          <div className="w-full bg-gray-50 rounded-xl border border-gray-200 shadow-sm p-8 text-center space-y-6 max-h-[700px] overflow-y-auto">
+                         dark: text-foreground">Pré-visualização</h2>
+          <div className="w-full bg-card rounded-xl border border-border shadow-sm p-8 text-center space-y-6 max-h-[700px] overflow-y-auto">
             {coverPreview && (
               <img
                 src={coverPreview}
@@ -568,8 +567,8 @@ export default function AddBook() {
               />
             )}
             {!coverPreview && (
-              <div className="w-full h-96 bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-500 text-center border-2 border-dashed border-gray-300">
-                <FaImage size={48} className="text-gray-400 mb-4" />
+              <div className="w-full h-96 bg-card rounded-lg flex flex-col items-center justify-center text-muted-foreground text-center border-2 border-dashed border-gray-300">
+                <FaImage size={48} className="text-muted-foreground mb-4" />
                 <p className="text-sm px-4">
                   Adicione uma URL ou faça upload da capa
                 </p>
@@ -577,31 +576,31 @@ export default function AddBook() {
             )}
 
             <div className="space-y-2 w-full">
-              <h3 className="text-2xl font-bold text-gray-800 w-full break-words">
+              <h3 className="text-2xl font-bold text-foreground w-full break-words">
                 {form.title || " "}
               </h3>
-              <p className="text-sm font-medium text-gray-600 w-full break-words">
+              <p className="text-sm font-medium text-foreground w-full break-words">
                 {form.author || " "}
               </p>
             </div>
 
             {form.rating && form.rating > 0 ? (
               <div className="flex justify-center">
-                <StarRating rating={form.rating} onRatingChange={() => {}} />
+                <StarRating rating={form.rating} onRatingChange={() => { }} />
               </div>
             ) : (
-              <p className="text-sm text-gray-500">Sem classificação</p>
+              <p className="text-sm text-muted-foreground">Sem classificação</p>
             )}
 
-            <p className="text-sm text-gray-500 font-semibold w-full break-words">
+            <p className="text-sm text-muted-foreground font-semibold w-full break-words">
               {form.genre || " "}
             </p>
 
-            <p className="text-sm text-gray-700 text-justify leading-relaxed break-words whitespace-pre-wrap">
+            <p className="text-sm text-foreground text-justify leading-relaxed break-words whitespace-pre-wrap">
               {form.synopsis || " "}
             </p>
 
-            <p className="text-sm text-gray-700 text-justify leading-relaxed break-words whitespace-pre-wrap">
+            <p className="text-sm text-foreground text-justify leading-relaxed break-words whitespace-pre-wrap">
               {form.notes || " "}
             </p>
           </div>
