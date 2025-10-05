@@ -10,12 +10,12 @@
     "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
     "prisma:migrate:dev": "prisma migrate dev --name init --schema=prisma/schema.prisma",
     "prisma:migrate:prod": "prisma migrate deploy --schema=prisma/schema.postgres.prisma",
-    "prisma:seed": "ts-node prisma/seed.ts",
-    "import:fromdata": "ts-node --transpile-only scripts/import-from-data.ts",
-    "setup:dev": "npm run prisma:generate && npm run prisma:migrate:dev && npm run prisma:seed && npm run import:fromdata",
-    "prisma": {
-      "seed": "ts-node --esm scripts/import-from-data.ts"
-    }
+    "prisma:seed": "ts-node -r tsconfig-paths/register --transpile-only prisma/seed.ts",
+    "import:fromdata": "ts-node -r tsconfig-paths/register --transpile-only --project tsconfig.seed.json scripts/import-from-data.ts",
+    "setup:dev": "npm run prisma:generate && npm run prisma:migrate:dev && npm run prisma:seed && npm run import:fromdata"
+  },
+  "prisma": {
+    "seed": "npx ts-node -r tsconfig-paths/register scripts/import-from-data.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -60,6 +60,7 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3"
   }
 }

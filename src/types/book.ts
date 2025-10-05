@@ -1,6 +1,6 @@
 export type ReadingStatus = 'QUERO_LER' | 'LENDO' | 'LIDO' | 'PAUSADO' | 'ABANDONADO';
 
-export interface Book {
+export default interface Book {
   id: string; // Identificador único do livro
   title: string; // Título do livro (obrigatório)
   author: string; // Autor do livro (obrigatório)

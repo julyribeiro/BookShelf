@@ -1,4 +1,4 @@
-import { Book } from '@/types/book';
+import Book from "../types/book.ts";
 import { v4 as uuidv4 } from "uuid";
 
 export const initialBooks: Book[] = [

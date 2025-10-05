@@ -1,5 +1,5 @@
 // prisma/seed.ts
-import prisma from "../src/lib/prisma";
+import { prisma } from "../src/lib/prisma.ts";
 
 async function main() {
   const baseGenres = [
