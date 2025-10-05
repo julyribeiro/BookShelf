@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Book, ReadingStatus } from "@/types/book";
+import Book, { ReadingStatus } from "@/types/book";;
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";

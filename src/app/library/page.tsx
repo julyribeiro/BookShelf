@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { Book, ReadingStatus } from "@/types/book";
+import Book, { ReadingStatus } from "@/types/book"
 import StarRating from "@/components/StarRating";
 import { Input } from "@/components/ui/input";
 import {

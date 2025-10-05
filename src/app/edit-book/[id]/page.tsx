@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { getBooks, updateBooks } from "@/data/books";
-import { Book, ReadingStatus } from "@/types/book";
+import Book, { ReadingStatus } from "@/types/book"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
