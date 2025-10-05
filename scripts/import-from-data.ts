@@ -1,7 +1,7 @@
 // scripts/import-from-data.ts
-import { prisma } from "../src/lib/prisma.ts";
-import { initialBooks } from "../src/data/books.ts";
-import Book from "../src/types/book.ts"
+import { prisma } from "../src/lib/prisma";
+import { initialBooks } from "../src/data/books";
+import Book from "../src/types/book"
 
 async function main() {
   console.log("📚 Importando livros iniciais do data.ts...");
