@@ -15,8 +15,21 @@ export async function getBook(id: number) {
   });
 }
 
-export async function createBook(data: Prisma.BookCreateInput) {
-  return prisma.book.create({ data });
+export async function createBook(data: any) {
+  const { genreId, ...bookData } = data;
+
+  if (!genreId) {
+    throw new Error("Genre ID (genreId) is required to create a book.");
+  }
+
+  return prisma.book.create({
+    data: {
+      ...bookData,
+      genre: {
+        connect: { id: genreId }
+      }
+    }
+  });
 }
 
 export async function updateBook(id: number, data: Prisma.BookUpdateInput) {
