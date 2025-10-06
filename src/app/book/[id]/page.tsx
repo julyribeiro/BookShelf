@@ -1,178 +1,48 @@
-"use client";
+// src/app/book/[id]/page.tsx
 
-import React from "react";
-import { useState } from "react";
-import { notFound, useRouter } from "next/navigation";
-import { getBooks, updateBooks } from "@/data/books";
-import { FaEdit, FaTrash, FaArrowLeft } from "react-icons/fa";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import Image from "next/image";
-import StarRating from "@/components/StarRating";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { useToast } from "@/components/ui/use-toast";
+import { notFound } from "next/navigation";
+import { getBookById } from "@/data/books";
+import BookDetailView from "./BookDetailView"; 
+import { Metadata } from "next"; 
 
-export default function BookDetailsPage({
-  params,
-}: {
-  params: Promise <{ id: string }>;
-}) {
-  const { id } = React.use(params);
-  const router = useRouter();
-  const { toast } = useToast();
+interface BookDetailsPageProps {
+    params: {
+        id: string;
+    };
+    searchParams?: { [key: string]: string | string[] | undefined }; 
+}
 
-  const allBooks = getBooks();
-  const book = allBooks.find((b) => b.id === id);
+export default async function BookDetailsPage(props: any) {
+    const { params } = props as BookDetailsPageProps; 
 
-  if (!book) {
-    notFound();
-  }
+    // Server-side fetch
+    const book = await getBookById(params.id);
 
-  const handleDelete = () => {
-    const updatedBooks = allBooks.filter((b) => b.id !== book.id);
-    updateBooks(updatedBooks);
-    
-    // Adicionando a notificação de sucesso
-    toast({
-      title: "Livro excluído!",
-      description: "O livro foi removido da sua biblioteca com sucesso.",
-    });
+    if (!book) {
+        return notFound();
+    }
 
-    // Adiciona um atraso para o usuário ver o "toast"
-    setTimeout(() => {
-      router.push("/library");
-    }, 500); // 500 milissegundos = 0.5 segundos
-  };
+    // Passa os dados para o Client Component
+    return (
+        <main>
+            <BookDetailView book={book} />
+        </main>
+    );
+}
 
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="mb-6">
-        <Button asChild>
-          <Link href="/library" className="flex items-center">
-            <FaArrowLeft className="mr-2" />
-            Voltar para a Biblioteca
-          </Link>
-        </Button>
-      </div>
+export async function generateMetadata(props: any): Promise<Metadata> {
+    const { params } = props as BookDetailsPageProps; 
 
-      <div className="flex flex-col md:flex-row gap-8 items-start">
-        <div className="w-full md:w-1/3 flex-shrink-0">
-          <div className="relative w-full h-96 rounded-lg overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700">
-            {book.cover ? (
-              <Image
-                src={book.cover}
-                alt={`Capa do livro ${book.title}`}
-                fill
-                style={{ objectFit: "contain" }}
-                className="rounded-lg"
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 rounded-lg dark:bg-gray-700 dark:text-gray-300">
-                Sem Capa
-              </div>
-            )}
-          </div>
-          
-          {/* CORREÇÃO DO BOTÃO EDITAR: Link envolve o Button para garantir o redirecionamento */}
-          <div className="mt-4 flex gap-2">
-            <Link href={`/edit-book/${book.id}`} passHref legacyBehavior>
-              <Button className="flex-1">
-                <FaEdit className="mr-2" /> Editar
-              </Button>
-            </Link>
+    const book = await getBookById(params.id);
 
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="flex-1">
-                  <FaTrash className="mr-2" /> Excluir
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta ação não pode ser desfeita. Isso removerá
-                    permanentemente o livro da sua biblioteca.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete}>
-                    Continuar
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        </div>
+    if (!book) {
+        return {
+            title: 'Livro não encontrado',
+        };
+    }
 
-        <div className="w-full md:w-2/3 space-y-4">
-          {/* CORREÇÃO CONTRASTE DARK MODE */}
-          <h1 className="text-4xl font-bold text-gray-900 break-words dark:text-gray-100">{book.title}</h1>
-          <p className="text-xl text-gray-600 break-words dark:text-gray-400">por {book.author}</p>
-
-          <div className="flex flex-wrap items-center gap-4">
-            {book.genre && (
-              <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                {book.genre}
-              </span>
-            )}
-            {book.status && (
-              <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                {book.status.replace("_", " ").toUpperCase()}
-              </span>
-            )}
-            <div className="flex items-center gap-1">
-              <StarRating rating={book.rating || 0} />
-              <span className="text-gray-600 dark:text-gray-400">
-                ({(book.rating || 0).toFixed(1)})
-              </span>
-            </div>
-          </div>
-          
-          <div className="space-y-4 pt-2">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-800 mb-1 dark:text-gray-200">Sinopse</h2>
-              <p className="text-gray-700 leading-relaxed break-words whitespace-pre-wrap text-justify dark:text-gray-300">
-                {book.synopsis || "N/A"}
-              </p>
-            </div>
-            
-            {book.notes && (
-              <div>
-                <h2 className="text-lg font-semibold text-gray-800 mb-1 dark:text-gray-200">Notas Pessoais</h2>
-                <p className="text-gray-700 leading-relaxed break-words whitespace-pre-wrap text-justify dark:text-gray-300">
-                  {book.notes}
-                </p>
-              </div>
-            )}
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
-            <p>
-              <strong className="dark:text-gray-200">Páginas:</strong> {book.pages || "N/A"}
-            </p>
-            <p>
-              <strong className="dark:text-gray-200">Ano de Publicação:</strong> {book.year || "N/A"}
-            </p>
-            {book.isbn && (
-              <p>
-                <strong className="dark:text-gray-200">ISBN:</strong> {book.isbn}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    return {
+        title: book.title,
+        description: `Detalhes do livro: ${book.title}`,
+    };
 }

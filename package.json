@@ -15,7 +15,7 @@
     "setup:dev": "npm run prisma:generate && npm run prisma:migrate:dev && npm run prisma:seed && npm run import:fromdata"
   },
   "prisma": {
-    "seed": "npx ts-node -r tsconfig-paths/register scripts/import-from-data.ts"
+    "seed": "ts-node --project tsconfig.seed.json -r tsconfig-paths/register prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -39,7 +39,7 @@
     "prisma": "^6.16.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-hook-form": "^7.63.0",
+    "react-hook-form": "^7.64.0",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
     "sonner": "^2.0.7",

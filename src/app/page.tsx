@@ -1,5 +1,5 @@
 import DashboardPage from './dashboard/page';
 
-export default function HomePage() {
-  return <DashboardPage />;
+export default async function HomePage() {
+  return await DashboardPage();
 }

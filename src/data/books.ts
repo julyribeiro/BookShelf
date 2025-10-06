@@ -1,146 +1,180 @@
-import Book from "../types/book";
-import { v4 as uuidv4 } from "uuid";
+import { prisma } from "@/lib/prisma";
+import Book from "@/types/book";
+import { Book as PrismaBook, Genre } from "@prisma/client";
+
+export type ReadingStatus = 'QUERO_LER' | 'LENDO' | 'LIDO' | 'PAUSADO' | 'ABANDONADO';
+
+type BookWithGenre = PrismaBook & { genre: Genre | null };
 
 export const initialBooks: Book[] = [
-  {
-    id: "1",
-    title: "Dom Casmurro",
-    author: "Machado de Assis",
-    genre: "Literatura Brasileira",
-    year: 1899,
-    pages: 256,
-    rating: 4.5,
-    synopsis: "Bentinho, um homem solitário e ciumento, relembra sua juventude e sua paixão por Capitu, questionando se ela o traiu com seu melhor amigo. Um dos maiores clássicos da literatura brasileira, cheio de ambiguidades e ironias.",
-    cover: "https://i.ebayimg.com/images/g/pisAAOSweM9koJ1M/s-l1200.jpg",
-    status: "LIDO"
-  },
-  {
-    id: "2",
-    title: "Duna",
-    author: "Frank Herbert",
-    genre: "Ficção Científica",
-    year: 1965,
-    pages: 688,
-    rating: 4.7,
-    synopsis: "Num futuro distante, a humanidade depende da especiaria melange, encontrada apenas no planeta desértico Arrakis. Paul Atreides, herdeiro de uma nobre casa, se vê envolvido em uma guerra épica pelo controle do planeta e seu precioso recurso.",
-    cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRADUMKDRS09WrBDr8NFVm9mNhh-OiN5zK01w&s",
-    status: "LENDO"
-  },
-  {
-    id: "3",
-    title: "O Senhor dos Anéis: A Sociedade do Anel",
-    author: "J.R.R. Tolkien",
-    genre: "Fantasia",
-    year: 1954,
-    pages: 423,
-    rating: 4.9,
-    synopsis: "Em uma terra chamada Terra-média, o jovem hobbit Frodo Bolseiro herda um anel mágico e maligno, e embarca em uma jornada épica para destruí-lo no Monte da Perdição, enfrentando orcs, elfos, magos e a própria escuridão.",
-    cover: "https://i.ebayimg.com/images/g/Ug8AAOSwpP1nnaYb/s-l1200.jpg",
-    status: "QUERO_LER"
-  },
-  {
-    id: "4",
-    title: "Steve Jobs",
-    author: "Walter Isaacson",
-    genre: "Biografia",
-    year: 2011,
-    pages: 656,
-    rating: 4.6,
-    synopsis: "Baseada em mais de quarenta entrevistas com Steve Jobs, esta biografia autorizada revela a personalidade intensa e às vezes difícil do gênio que revolucionou seis indústrias: computadores, filmes, música, telefones, tablets e publicações digitais.",
-    cover: "https://m.media-amazon.com/images/I/71sVQDj0SCL.jpg",
-    status: "PAUSADO"
-  },
-  {
-    id: "5",
-    title: "Clean Code: A Handbook of Agile Software Craftsmanship",
-    author: "Robert C. Martin",
-    genre: "Tecnologia",
-    year: 2008,
-    pages: 464,
-    rating: 4.4,
-    synopsis: "Um guia essencial para todo desenvolvedor que deseja escrever código limpo, legível e sustentável. Robert C. Martin ensina princípios, padrões e práticas que transformam programadores em artesãos do software.",
-    cover: "https://m.media-amazon.com/images/I/41xShlnTZTL._SX379_BO1,204,203,200_.jpg",
-    status: "ABANDONADO"
-  },
-  {
-    id: "6",
-    title: "O Cortiço",
-    author: "Aluísio Azevedo",
-    genre: "Literatura Brasileira",
-    year: 1890,
-    pages: 352,
-    rating: 4.0,
-    synopsis: "Um dos romances mais importantes do Naturalismo no Brasil, 'O Cortiço' retrata a vida de diversos personagens em um cortiço carioca, explorando temas como o determinismo biológico e a influência do ambiente na vida das pessoas.",
-    cover: "https://m.media-amazon.com/images/I/41DLCoO9+yL._SY445_SX342_ML2_.jpg",
-    status: "LENDO"
-  },
-  {
-    id: "7",
-    title: "Cem Anos de Solidão",
-    author: "Gabriel García Márquez",
-    genre: "Realismo Mágico",
-    year: 1967,
-    pages: 419,
-    rating: 5,
-    synopsis: "A história da família Buendía na mítica cidade de Macondo, explorando gerações de amores, guerras e solidão.",
-    cover: "https://www.obrasdarte.com/wp-content/uploads/2021/07/Gabriel_Garcia_Marquez_Cem_anos_de_solidao_capa.jpg",
-    status: "LENDO"
-  },
-  {
-    id: "8",
-    title: "Atomic Habits",
-    author: "James Clear",
-    genre: "Autoajuda",
-    year: 2018,
-    pages: 320,
-    rating: 4.8,
-    synopsis: "Um guia prático para criar bons hábitos e quebrar os maus. James Clear oferece estratégias para melhorar um pouco a cada dia.",
-    cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1544241760i/43172223.jpg",
-    status: "LIDO"
-  }
-];
+    // 1. ROMANCE / CRISTÃO (A Cabana)
+    {
+        id: '1', 
+        title: "A Cabana",
+        author: "William P. Young",
+        year: 2007,
+        cover: "https://m.media-amazon.com/images/I/51ND1ZL6dfL._SY445_SX342_ML2_.jpg", 
+        rating: 5,
+        status: "LIDO" as ReadingStatus, 
+        genre: "Romance", 
+        synopsis: "Um pai em luto recebe um convite misterioso para ir a uma cabana no Oregon. Uma jornada sobre fé e perdão.",
+        pages: 256,
+        isbn: "978-8578600713",
+    },
+    // 2. PROGRAMAÇÃO (O Código Limpo)
+    {
+        id: '2', 
+        title: "O Código Limpo",
+        author: "Robert C. Martin",
+        year: 2008,
+        cover: "https://m.media-amazon.com/images/I/4138uiy6ghL._UF1000,1000_QL80_.jpg", 
+        rating: 5,
+        status: "QUERO_LER" as ReadingStatus, 
+        genre: "Programação", 
+        synopsis: "Guia prático sobre escrita de código de software limpo, elegante e eficiente. Essencial para desenvolvedores.",
+        pages: 464,
+        isbn: "978-8573166504",
+    },
+    // 3. PROGRAMAÇÃO: ARQUITETURA (Arquitetura Limpa)
+    {
+        id: '3', 
+        title: "Arquitetura Limpa",
+        author: "Robert C. Martin",
+        year: 2017,
+        cover: "https://images-na.ssl-images-amazon.com/images/I/815d9tE7jSL._AC_UL600_SR600,600_.jpg",
+        rating: 5,
+        status: "LENDO" as ReadingStatus, 
+        genre: "Programação", 
+        synopsis: "Estratégias para projetar sistemas de software que sejam robustos, fáceis de testar e fáceis de manter.",
+        pages: 432,
+        isbn: "978-8550804606",
+    },
+    // 4. CRISTÃO: VIDA E FÉ (O Peregrino)
+    {
+        id: '4', 
+        title: "O Peregrino",
+        author: "John Bunyan",
+        year: 1678, 
+        cover: "https://m.media-amazon.com/images/I/91TP2-R-JAL._UF1000,1000_QL80_.jpg",
+        rating: 4,
+        status: "LIDO" as ReadingStatus, 
+        genre: "Fantasia", 
+        synopsis: "Uma alegoria cristã que narra a jornada do personagem Cristão, da Cidade da Destruição até a Cidade Celestial.",
+        pages: 320,
+        isbn: "978-8571670984",
+    },
+    // 5. PROGRAMAÇÃO: PADRÕES (Gang of Four)
+    {
+        id: '5', 
+        title: "Padrões de Projeto",
+        author: "Gamma, Helm, Johnson, Vlissides",
+        year: 1994,
+        cover: "https://m.media-amazon.com/images/I/51nL96Abi1L._UF1000,1000_QL80_.jpg",
+        rating: 4,
+        status: "PAUSADO" as ReadingStatus, 
+        genre: "Programação", 
+        synopsis: "O livro que estabeleceu 23 padrões de design essenciais para desenvolvedores OO.",
+        pages: 480,
+        isbn: "978-8573088028",
+    },
+    // 6. CRISTÃO: DEVOÇÃO (Em Seus Passos)
+    {
+        id: '6', 
+        title: "Em Seus Passos Que Faria Jesus?",
+        author: "Charles M. Sheldon",
+        year: 1897,
+        cover: "https://abbapress.com.br/loja/wp-content/uploads/2016/11/Capa-Em-seus-passos-baixa-color.jpg", 
+        rating: 4,
+        status: "LIDO" as ReadingStatus, 
+        genre: "Romance", 
+        synopsis: "A história de moradores de uma cidade que decidem adotar a regra de não fazer nada sem antes perguntar: 'O que Jesus faria?'",
+        pages: 288,
+        isbn: "978-8573510507",
+    },
+    // 7. PROGRAMAÇÃO: FRONT-END (Não me Faça Pensar)
+    {
+        id: '7', 
+        title: "Não Me Faça Pensar",
+        author: "Steve Krug",
+        year: 2000,
+        cover: "https://m.media-amazon.com/images/I/51i8-f+QMFL._UF1000,1000_QL80_.jpg", 
+        rating: 4,
+        status: "QUERO_LER" as ReadingStatus, 
+        genre: "Tecnologia", 
+        synopsis: "Focado em usabilidade, é um guia prático e divertido sobre como criar interfaces eficazes.",
+        pages: 200,
+        isbn: "978-8575080824",
+    },
+    // 8. CRISTÃO: TEOLOGIA (Conhecendo a Vontade de Deus)
+    {
+        id: '8', 
+        title: "Conhecendo a Vontade de Deus",
+        author: "J. I. Packer",
+        year: 1990,
+        cover: "https://m.magazineluiza.com.br/a-static/420x420/conhecendo-a-vontade-de-deus-serie-estudos-biblicos-j-i-packer-cultura-crista/100cristao/2011393/a4fc98a1efa1885620ab5acb64f52638.jpeg",
+        rating: 5,
+        status: "LIDO" as ReadingStatus, 
+        genre: "Outro", 
+        synopsis: "Uma abordagem teológica sobre como os cristãos devem entender e buscar a vontade de Deus em suas vidas.",
+        pages: 128,
+        isbn: "978-8580380327",
+    }
+]; 
 
-const localStorageKey = 'bookshelf-books';
+// Mapeador centralizado para garantir consistência e inclusão de todos os campos
+const mapPrismaToBook = (book: BookWithGenre): Book => ({
+    id: String(book.id), 
+    title: book.title,
+    author: book.author,
+    year: book.year || 0,
+    cover: book.cover || undefined,
+    rating: book.rating || 0,
+    status: (book.status || "QUERO_LER") as ReadingStatus, 
+    genre: book.genre?.name || 'Sem Gênero', 
+    synopsis: book.synopsis || undefined,
+    notes: book.notes || undefined,
+    pages: book.pages || undefined,
+});
 
-// Tenta carregar os livros do localStorage. Se não houver, usa a lista inicial.
-let books: Book[] = [];
-if (typeof window !== 'undefined') {
-  const storedBooks = localStorage.getItem(localStorageKey);
-  books = storedBooks ? JSON.parse(storedBooks) : initialBooks;
-} else {
-  books = initialBooks;
+/*
+// 🛑 COMENTADO PARA EVITAR CHAMADA AO PRISMA QUE FALHA NO BUILD
+export async function getBooks(): Promise<Book[]> {
+    // ... código de busca do Prisma
 }
 
-const saveBooksToLocalStorage = (currentBooks: Book[]) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(localStorageKey, JSON.stringify(currentBooks));
-  }
-};
+export async function getBookById(id: string): Promise<Book | undefined> {
+    // ... código de busca do Prisma
+}
 
-export const getBooks = (): Book[] => {
-  return books;
-};
+export async function getAllGenres(): Promise<Genre[]> {
+    // ... código de busca do Prisma
+}
+*/
 
-export const getBookById = (id: string): Book | undefined => {
-  return books.find((book) => book.id === id);
-};
+export async function getBooks(): Promise<Book[]> {
+    // Versão fallback: Retorna dados mockados para o deploy
+    console.warn("Usando dados mockados (initialBooks) para o deploy.");
+    return initialBooks;
+}
+
+export async function getBookById(id: string): Promise<Book | undefined> {
+    // Versão fallback: Busca nos dados mockados
+    const foundBook = initialBooks.find(book => book.id === id);
+    return foundBook;
+}
+
+// 🛑 APAGADO OU COMENTADO: getAllGenres
 
 export const addBook = (book: Book): void => {
-  const newBook = { ...book, id: uuidv4() };
-  books.push(newBook);
-  saveBooksToLocalStorage(books);
+    console.warn("addBook stub chamado.");
 };
 
 export const updateBooks = (updatedBooks: Book[]): void => {
-  books = updatedBooks;
-  saveBooksToLocalStorage(books);
+    console.warn("updateBooks stub chamado.");
 };
 
 export const updateBook = (updatedBook: Book): void => {
-  books = books.map((book) =>
-    book.id === updatedBook.id ? updatedBook : book
-  );
-  saveBooksToLocalStorage(books);
+    console.warn("updateBook stub chamado.");
 };
 
 export type { Book };
