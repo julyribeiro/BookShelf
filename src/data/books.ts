@@ -136,55 +136,34 @@ const mapPrismaToBook = (book: BookWithGenre): Book => ({
     pages: book.pages || undefined,
 });
 
+/*
+// 🛑 COMENTADO PARA EVITAR CHAMADA AO PRISMA QUE FALHA NO BUILD
 export async function getBooks(): Promise<Book[]> {
-    try {
-        const booksWithGenre = await prisma.book.findMany({
-            include: {
-                genre: true,
-            },
-            orderBy: {
-                title: 'asc',
-            },
-        }) as BookWithGenre[];
-
-        return booksWithGenre.map(mapPrismaToBook);
-    } catch (error) {
-        console.error("Erro ao buscar livros do banco de dados:", error);
-        return []; 
-    }
+    // ... código de busca do Prisma
 }
 
 export async function getBookById(id: string): Promise<Book | undefined> {
-    try {
-        const numericId = Number(id);
-        
-        const book = await prisma.book.findUnique({
-            where: { id: numericId }, 
-            include: { genre: true} 
-        }) as (BookWithGenre | null);
-
-        if (!book) return undefined;
-
-        return mapPrismaToBook(book);
-        
-    } catch (error) {
-        console.error("Erro ao buscar livro único:", error);
-        return undefined;
-    }
+    // ... código de busca do Prisma
 }
 
-// 🛑 NOVA FUNÇÃO: Adicionada para que o page.tsx possa importar e usar.
 export async function getAllGenres(): Promise<Genre[]> {
-    try {
-        const genres = await prisma.genre.findMany({
-            orderBy: { name: 'asc' },
-        });
-        return genres;
-    } catch (error) {
-        console.error("Erro ao buscar todos os gêneros:", error);
-        return [];
-    }
+    // ... código de busca do Prisma
 }
+*/
+
+export async function getBooks(): Promise<Book[]> {
+    // Versão fallback: Retorna dados mockados para o deploy
+    console.warn("Usando dados mockados (initialBooks) para o deploy.");
+    return initialBooks;
+}
+
+export async function getBookById(id: string): Promise<Book | undefined> {
+    // Versão fallback: Busca nos dados mockados
+    const foundBook = initialBooks.find(book => book.id === id);
+    return foundBook;
+}
+
+// 🛑 APAGADO OU COMENTADO: getAllGenres
 
 export const addBook = (book: Book): void => {
     console.warn("addBook stub chamado.");
