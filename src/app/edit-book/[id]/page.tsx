@@ -4,13 +4,11 @@ import { ReadingStatus, Book, Genre } from "@prisma/client";
 import FormToast from "@/components/FormToast";
 import BookEditFormClient from './BookEditFormClient'; 
 
-// --- CORREÇÃO DA TIPAGEM PARA EVITAR ERRO DE COMPATIBILIDADE ---
+// --- TIPAGEM AUXILIAR ---
 type BookWithGenre = Book & {
   genre: Genre | null;
 };
 
-// Interface ajustada para garantir campos obrigatórios como string,
-// resolvendo o erro que você encontrou.
 interface BookFormClientProps {
   initialBook: Omit<BookWithGenre, 'title' | 'author'> & { 
     title: string;
@@ -20,8 +18,11 @@ interface BookFormClientProps {
 }
 // -------------------------------------------------------------------
 
-// --- SERVER COMPONENT: Busca de Dados ---
-export default async function EditBookPage({ params }: { params: { id: string } }) {
+// --- SERVER COMPONENT: Busca de Dados (CORRIGIDO PARA O BUILD DO VERCEL) ---
+// Usamos 'any' na assinatura para contornar o erro de tipagem persistente 'PageProps'
+export default async function EditBookPage(props: any) {
+  // Cast interno para tipar 'params' corretamente
+  const { params } = props as { params: { id: string } }; 
   const numericId = Number(params.id);
 
   if (isNaN(numericId)) {
@@ -46,21 +47,18 @@ export default async function EditBookPage({ params }: { params: { id: string } 
     return notFound(); 
   }
   
-  // Garante que o rating seja number ou null, conforme a tipagem do Prisma (BookWithGenre)
   const bookWithGenre: BookWithGenre = {
-    ...book,
-    // Se book.rating for null, atribua null. Se não, use o valor existente (number).
-    rating: book.rating ?? null 
-};
+    ...book,
+    rating: book.rating ?? null 
+  };
 
   return (
     <>
       <FormToast /> 
       <BookEditFormClient 
-            // O cast é mantido pois a outra tipagem (title/author) está correta
-            initialBook={bookWithGenre as BookFormClientProps['initialBook']} 
-            categories={categories} 
-        />
+            initialBook={bookWithGenre as BookFormClientProps['initialBook']} 
+            categories={categories} 
+        />
     </>
   );
 }
