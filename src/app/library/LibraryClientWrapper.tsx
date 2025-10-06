@@ -37,12 +37,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useSearchParams, useRouter, usePathname } from "next/navigation"; 
 import { deleteBookAction } from '@/actions/bookActions'; 
-
+import { Genre } from "@prisma/client"; 
 
 interface LibraryClientWrapperProps {
   initialBooks: Book[];
   initialStatus: string;
   genres: string[];
+  categories: Genre[];
 }
 
 const statuses = [

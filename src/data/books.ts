@@ -137,52 +137,65 @@ const mapPrismaToBook = (book: BookWithGenre): Book => ({
 });
 
 export async function getBooks(): Promise<Book[]> {
-  try {
-    const booksWithGenre = await prisma.book.findMany({
-      include: {
-        genre: true,
-      },
-      orderBy: {
-        title: 'asc',
-      },
-    }) as BookWithGenre[];
+    try {
+        const booksWithGenre = await prisma.book.findMany({
+            include: {
+                genre: true,
+            },
+            orderBy: {
+                title: 'asc',
+            },
+        }) as BookWithGenre[];
 
-    return booksWithGenre.map(mapPrismaToBook);
-  } catch (error) {
-    console.error("Erro ao buscar livros do banco de dados:", error);
-    return []; 
-  }
+        return booksWithGenre.map(mapPrismaToBook);
+    } catch (error) {
+        console.error("Erro ao buscar livros do banco de dados:", error);
+        return []; 
+    }
 }
 
 export async function getBookById(id: string): Promise<Book | undefined> {
-  try {
-    const numericId = Number(id);
-    
-    const book = await prisma.book.findUnique({
-      where: { id: numericId }, 
-      include: { genre: true} 
-    }) as (BookWithGenre | null);
+    try {
+        const numericId = Number(id);
+        
+        const book = await prisma.book.findUnique({
+            where: { id: numericId }, 
+            include: { genre: true} 
+        }) as (BookWithGenre | null);
 
-    if (!book) return undefined;
+        if (!book) return undefined;
 
-    return mapPrismaToBook(book);
-    
-  } catch (error) {
-    console.error("Erro ao buscar livro único:", error);
-    return undefined;
-  }
+        return mapPrismaToBook(book);
+        
+    } catch (error) {
+        console.error("Erro ao buscar livro único:", error);
+        return undefined;
+    }
+}
+
+// 🛑 NOVA FUNÇÃO: Adicionada para que o page.tsx possa importar e usar.
+export async function getAllGenres(): Promise<Genre[]> {
+    try {
+        const genres = await prisma.genre.findMany({
+            orderBy: { name: 'asc' },
+        });
+        return genres;
+    } catch (error) {
+        console.error("Erro ao buscar todos os gêneros:", error);
+        return [];
+    }
 }
 
 export const addBook = (book: Book): void => {
-  console.warn("addBook stub chamado.");
+    console.warn("addBook stub chamado.");
 };
 
 export const updateBooks = (updatedBooks: Book[]): void => {
-  console.warn("updateBooks stub chamado.");
+    console.warn("updateBooks stub chamado.");
 };
 
 export const updateBook = (updatedBook: Book): void => {
-  console.warn("updateBook stub chamado.");
+    console.warn("updateBook stub chamado.");
 };
 
 export type { Book };
