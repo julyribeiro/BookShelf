@@ -2,14 +2,20 @@
 
 import { notFound } from "next/navigation";
 import { getBookById } from "@/data/books";
-import BookDetailView from "./BookDetailView"; 
+import BookDetailView from "./BookDetailView";
+import { Metadata } from "next"; 
 
-type PageParams = {
-    id: string;
+
+type BookDetailsPageProps = {
+    params: {
+        id: string;
+    };
+
+    searchParams?: { [key: string]: string | string[] | undefined }; 
 };
 
-// Componente principal
-export default async function BookDetailsPage({ params }: { params: PageParams }) {
+
+export default async function BookDetailsPage({ params }: BookDetailsPageProps) {
     
     // Server-side fetch
     const book = await getBookById(params.id);
@@ -26,8 +32,7 @@ export default async function BookDetailsPage({ params }: { params: PageParams }
     );
 }
 
-// Opcional: Adiciona metadados
-export async function generateMetadata({ params }: { params: PageParams }) {
+export async function generateMetadata({ params }: BookDetailsPageProps): Promise<Metadata> {
     const book = await getBookById(params.id);
 
     if (!book) {
