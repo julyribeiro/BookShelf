@@ -4,14 +4,45 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { FaArrowLeft, FaStar, FaEdit, FaTrash } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
-import { Book, ReadingStatus } from "@/data/books"; 
 import { Badge } from "@/components/ui/badge"; 
+
+// =================================================================
+// CORREÇÃO ESSENCIAL: DEFINIÇÃO DE TIPOS
+// O erro 2322 é resolvido aqui, ajustando o tipo Book para o formato do banco.
+// =================================================================
+
+// Mantenha a definição de ReadingStatus (se estiver em outro arquivo, mantenha a importação)
+// Se não existir mais no /data/books, defina-o aqui temporariamente:
+type ReadingStatus = 'LIDO' | 'LENDO' | 'QUERO_LER' | 'ABANDONADO' | 'PAUSADO';
+
+interface Genre {
+    id: number;
+    name: string;
+}
+
+// O NOVO TIPO BOOK (ID como number, Genre como objeto)
+interface Book {
+    id: number; // CORRIGIDO: Agora espera number, não string.
+    title: string;
+    author: string;
+    year: number | null;
+    pages: number | null;
+    rating: number | null;
+    synopsis: string | null;
+    cover: string | null;
+    status: ReadingStatus;
+    notes: string | null;
+    genre: Genre | null; // CORRIGIDO: Agora espera o objeto Genre
+}
+
+// =================================================================
+// FUNÇÕES AUXILIARES (Mantenha as funções como estão)
+// =================================================================
 
 interface BookDetailViewProps {
     book: Book;
 }
 
-// Função para definir a cor do Badge de Status
 const getStatusBadgeClass = (status: ReadingStatus): string => {
     switch (status) {
         case 'LIDO':
@@ -29,7 +60,6 @@ const getStatusBadgeClass = (status: ReadingStatus): string => {
     }
 };
 
-// Função auxiliar para renderizar estrelas
 const renderRatingStars = (rating: number) => {
     const fullStars = Math.floor(rating);
     const emptyStars = 5 - fullStars;
@@ -44,11 +74,14 @@ const renderRatingStars = (rating: number) => {
     return stars;
 };
 
-// Função auxiliar para formatar o status (QUERO_LER -> Quero ler)
 const formatStatus = (status: string) => {
     const formatted = status.replace(/_/g, ' ');
     return formatted.charAt(0).toUpperCase() + formatted.slice(1).toLowerCase();
 };
+
+// =================================================================
+// COMPONENTE PRINCIPAL (COM LAYOUT CORRIGIDO)
+// =================================================================
 
 export default function BookDetailView({ book }: BookDetailViewProps) {
     const router = useRouter();
@@ -58,15 +91,15 @@ export default function BookDetailView({ book }: BookDetailViewProps) {
     };
 
     const handleEdit = () => {
-        router.push(`/book/edit/${book.id}`);
+        // ID agora é number, mas a rota aceita string, então convertemos:
+        router.push(`/edit-book/${book.id}`); 
     };
     
-    // Stub para a função de exclusão
     const handleDelete = () => {
-        console.warn("Função de exclusão chamada. Implementar Server Action aqui.");
+        alert("Ação de exclusão. Substitua por sua Server Action final.");
     };
 
-    const statusBadgeClass = getStatusBadgeClass(book.status);
+    const statusBadgeClass = getStatusBadgeClass(book.status as ReadingStatus);
 
     return (
         <div className="max-w-6xl w-full mx-auto py-12 px-6 md:px-10">
@@ -76,30 +109,34 @@ export default function BookDetailView({ book }: BookDetailViewProps) {
                 <FaArrowLeft className="mr-2" /> Voltar para a Biblioteca
             </Button>
             
-            {/* BLOCO DA CAPA E DETALHES */}
-            <div className="flex flex-col md:flex-row items-start gap-8 justify-center">
+            {/* BLOCO PRINCIPAL: CAPA e DETALHES */}
+            <div className="flex flex-col justify-center md:flex-row items-start gap-8"> 
                 
-                {/* COLUNA DA CAPA E BOTÕES */}
+                {/* COLUNA DA CAPA E BOTÕES DE AÇÃO */}
                 <div className="flex-shrink-0 w-full md:w-56">
                     {book.cover && (
                         <img 
-                            src={book.cover} 
+                            // O 'as string' aqui garante que não haja erro de tipo se 'cover' for null
+                            src={book.cover as string} 
                             alt={`Capa do livro ${book.title}`} 
                             className="w-full h-auto object-cover rounded shadow-lg mb-4"
                         />
                     )}
                     
+                    {/* BOTÕES EDITAR E EXCLUIR */}
                     <div className="flex space-x-2 mt-2">
-                        <Button onClick={handleEdit} className="flex-1">
+                        {/* Botão Editar */}
+                        <Button onClick={handleEdit} className="flex-1 bg-blue-600 hover:bg-blue-700">
                             <FaEdit className="mr-1" /> Editar
                         </Button>
+                        {/* Botão Excluir */}
                         <Button onClick={handleDelete} variant="destructive" className="flex-1">
                             <FaTrash className="mr-1" /> Excluir
                         </Button>
                     </div>
                 </div>
 
-                {/* COLUNA DE DETALHES PRINCIPAIS - max-w-lg para limitar a largura do texto */}
+                {/* COLUNA DE DETALHES PRINCIPAIS */}
                 <div className="flex-grow max-w-lg"> 
                     <h1 className="text-4xl font-extrabold mb-1">{book.title}</h1>
                     <h2 className="text-xl text-gray-700 dark:text-gray-300 mb-4">
@@ -108,12 +145,13 @@ export default function BookDetailView({ book }: BookDetailViewProps) {
                     
                     {/* BADGES E AVALIAÇÃO */}
                     <div className="flex items-center space-x-3 mb-6">
-                        {book.genre && (
+                        {/* Acesso a 'name' do objeto 'genre' */}
+                        {book.genre?.name && (
                             <Badge className="bg-blue-600 text-white hover:bg-blue-700 rounded-xl">
-                                {book.genre}
+                                {book.genre.name}
                             </Badge>
                         )}
-                        <Badge className={`${getStatusBadgeClass(book.status)} text-white rounded-xl`}>
+                        <Badge className={`${statusBadgeClass} text-white rounded-xl`}>
                             {formatStatus(book.status)}
                         </Badge>
                         <div className="flex items-center text-lg">

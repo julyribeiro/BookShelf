@@ -1,14 +1,13 @@
 // src/app/edit-book/[id]/page.tsx
 
-import { BookFormValues } from "@/lib/schemas"; 
-import { getBookAction } from '@/app/actions'; 
-import BookEditFormClient from "./BookEditFormClient"; 
-import { getAllCategories } from '@/app/actions'; 
-import { BookWithGenre } from "@/data/books"; 
+import { BookFormValues } from "@/lib/schemas";
+import { getBookAction } from "@/app/actions";
+import BookEditFormClient from "../../../components/BookEditFormClient";
+import { getAllCategories } from "@/app/actions";
+import { BookWithGenre } from "@/data/books";
 
 type ReadingStatus = "LENDO" | "CONCLUIDO" | "PLANEJADO" | "ABANDONADO";
-import { notFound } from "next/navigation"; 
-
+import { notFound } from "next/navigation";
 
 interface EditBookPageProps {
   params: Promise<{
@@ -58,23 +57,22 @@ export default async function EditBookPage({ params }: EditBookPageProps) {
   );
 }
 async function fetchBookData(id: string): Promise<BookWithGenre | null> {
-    try {
-        const book = await getBookAction(id);
-        return book ?? null;
-    } catch (error) {
-        return null;
-    }
+  try {
+    const book = await getBookAction(id);
+    return book ?? null;
+  } catch (error) {
+    return null;
+  }
 }
 function mapStatusToForm(status: string): ReadingStatus {
-    const validStatuses: ReadingStatus[] = [
-        "LENDO",
-        "CONCLUIDO",
-        "PLANEJADO",
-        "ABANDONADO"
-    ];
-    if (validStatuses.includes(status as ReadingStatus)) {
-        return status as ReadingStatus;
-    }
-    return "PLANEJADO";
+  const validStatuses: ReadingStatus[] = [
+    "LENDO",
+    "CONCLUIDO",
+    "PLANEJADO",
+    "ABANDONADO",
+  ];
+  if (validStatuses.includes(status as ReadingStatus)) {
+    return status as ReadingStatus;
+  }
+  return "PLANEJADO";
 }
-

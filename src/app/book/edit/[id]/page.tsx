@@ -1,23 +1,29 @@
-import { getBookById } from "@/lib/actions";
-import BookForm from "@/components/BookForm";
+// src/app/book/edit/[id]/page.tsx
 
-type EditBookPageProps = {
-  params: Promise<{ id: string }>;
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { getBookById } from "@/lib/actions";
+import BookEditFormClient from "@/components/BookEditFormClient";
+
+type BookEditPageProps = {
+  params: { id: string };
 };
 
-export default async function EditBookPage({ params }: EditBookPageProps) {
-  const { id } = await params;
+export default async function BookEditPage({ params }: BookEditPageProps) {
+  const { id } = params;
+
+  // getBookById recebe o ID como string (resolvendo erro anterior)
   const book = await getBookById(id);
 
+  // A busca de categorias usa a importação nomeada 'prisma'
+  const categories = await prisma.genre.findMany();
+
   if (!book) {
-    return <div className="p-6 text-center text-red-600">Livro não encontrado.</div>;
+    return notFound();
   }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Editar Livro</h1>
-      {/* ✅ Reutiliza o formulário de criação */}
-      <BookForm initialData={book} />
-    </div>
+    // Passa as props com os nomes corretos
+    <BookEditFormClient initialBook={book} categories={categories} />
   );
 }

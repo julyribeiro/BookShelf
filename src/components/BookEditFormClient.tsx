@@ -1,3 +1,4 @@
+// src/app/book/edit/[id]/BookEditFormClient.tsx (ou onde estiver seu formulário)
 'use client';
 
 import { useState, useEffect, useCallback } from "react";
@@ -34,48 +35,27 @@ import {
 } from "react-icons/fa";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
+
+// ✅ IMPORTAÇÃO CORRETA: Traz os tipos nativos do Prisma
 import { ReadingStatus, Book, Genre } from "@prisma/client";
 import { updateBookAction, deleteBookAction } from '@/actions/bookActions';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
-// interface BookWithGenre é a base de dados completa
+// =================================================================
+// ✅ CORREÇÃO DE TIPAGEM: Usando os tipos nativos do Prisma
+// O Server Component (page.tsx) retorna o Book COM o objeto Genre
+// =================================================================
 type BookWithGenre = Book & {
   genre: Genre | null;
 };
 
-interface InitialBookProps {
-  id: string | number; // Deve aceitar string (do mapeamento) ou number (do DB)
-  title: string;
-  author: string;
-
-  // O erro indicou que 'pages', 'cover', 'notes' estão faltando, então usamos eles:
-  pages: number | null | undefined;
-  cover: string | null | undefined;
-  notes: string | null | undefined;
-
-  // Campos de metadados obrigatórios do DB (que faltavam no seu objeto do Page.tsx)
-  createdAt: Date;
-  updatedAt: Date;
-
-  // Outros campos do DB
-  synopsis: string | null;
-  year: number | null;
-  currentPage: number | null;
-  isbn: string | null;
-  genreId: number | null;
-  rating: number | null;
-  status: ReadingStatus;
-
-  // O objeto 'genre' completo é a união de Book & Genre
-  genre: Genre | null;
-}
-
+// Interface do Prop: O Server Component passa o 'book' (como BookWithGenre) e as 'categories'
 interface BookFormClientProps {
-  initialBook: InitialBookProps;
+  initialBook: BookWithGenre; // Usa o tipo completo retornado pelo getBookById
   categories: Genre[];
 }
 
-// 🛑 BookFormState: Alinhado com InitialBookProps para facilitar a inicialização
+// O estado do formulário deve ser baseado nas propriedades editáveis do Book
 interface BookFormState {
   title: string;
   author: string;
@@ -108,11 +88,13 @@ export default function BookEditFormClient({ initialBook, categories }: BookForm
   const [form, setForm] = useState<BookFormState>({
     title: initialBook.title || "",
     author: initialBook.author || "",
-    genreId: initialBook.genreId || undefined,
-    year: initialBook.year || undefined,
-    pages: initialBook.pages || undefined,
-    currentPage: initialBook.currentPage || undefined,
-    rating: initialBook.rating || undefined,
+    // ✅ Corrigido para garantir que 'undefined' seja usado se for null, 
+    // mas Number(initialBook.genreId) é o mais seguro, já que no DB é number|null
+    genreId: initialBook.genreId ?? undefined, 
+    year: initialBook.year ?? undefined,
+    pages: initialBook.pages ?? undefined,
+    currentPage: initialBook.currentPage ?? undefined,
+    rating: initialBook.rating ?? undefined,
     synopsis: initialBook.synopsis || "",
     cover: initialBook.cover || "",
     status: initialBook.status || "QUERO_LER",
@@ -164,7 +146,7 @@ export default function BookEditFormClient({ initialBook, categories }: BookForm
       setNotesCount(value.length);
     }
 
-    setForm({ ...form, [name]: newValue as any }); // 'as any' é usado aqui para lidar com a conversão Number/String/undefined
+    setForm({ ...form, [name]: newValue as any }); 
 
     if (errors[name as keyof typeof errors]) {
       setErrors({ ...errors, [name]: "" });
@@ -177,7 +159,7 @@ export default function BookEditFormClient({ initialBook, categories }: BookForm
     if (name === "status") {
       newValue = value as ReadingStatus;
     } else if (name === "genreId") {
-      newValue = value === "" ? undefined : Number(value); // Garante que "" é undefined/null
+      newValue = value === "" ? undefined : Number(value); 
     } else {
       newValue = value;
     }
@@ -291,7 +273,8 @@ export default function BookEditFormClient({ initialBook, categories }: BookForm
       const formData = new FormData();
 
       // Adiciona o ID do livro ao FormData
-      formData.append('id', String(initialBook.id));
+      // ✅ initialBook.id é Number, converte para String
+      formData.append('id', String(initialBook.id)); 
 
       // Adiciona todos os campos de updateData ao FormData
       Object.entries(updateData).forEach(([key, value]) => {
@@ -325,7 +308,8 @@ export default function BookEditFormClient({ initialBook, categories }: BookForm
   const handleDeleteBook = async () => {
     setIsDeleting(true);
     try {
-      await deleteBookAction(initialBook.id.toString());
+      // ✅ initialBook.id é Number, converte para String para a Server Action
+      await deleteBookAction(initialBook.id.toString()); 
       toast({
         title: "Sucesso!",
         description: `Livro "${initialBook.title}" excluído com sucesso.`,
@@ -344,35 +328,22 @@ export default function BookEditFormClient({ initialBook, categories }: BookForm
     }
   };
 
-  // Lógica de cálculo de progresso
-  const totalFields = 12; // Retirado o ID, pois não é um campo preenchível
+  // Lógica de cálculo de progresso (mantida)
+  const totalFields = 12; 
   let currentFields = 0;
 
-  // 1. Title
   if (form.title?.trim()) currentFields++;
-  // 2. Author
   if (form.author?.trim()) currentFields++;
-  // 3. Genre
-  if (form.genreId !== undefined && form.genreId > 0) currentFields++; // Adicionado > 0
-  // 4. Status
+  if (form.genreId !== undefined && form.genreId > 0) currentFields++; 
   if (form.status !== null && form.status.trim()) currentFields++;
-  // 5. Rating (condicional)
   if (!noRating && (form.rating !== undefined && form.rating > 0)) currentFields++;
-  // 6. Cover
   if (form.cover?.trim()) currentFields++;
-  // 7. Year
   if (form.year !== undefined && form.year > 0) currentFields++;
-  // 8. Pages
   if (form.pages !== undefined && form.pages > 0) currentFields++;
-  // 9. CurrentPage
   if (form.currentPage !== undefined && form.currentPage >= 0) currentFields++;
-  // 10. ISBN
   if (form.isbn?.trim()) currentFields++;
-  // 11. Synopsis
   if (form.synopsis?.trim()) currentFields++;
-  // 12. Notes
   if (form.notes?.trim()) currentFields++;
-
 
   const progress = Math.min(100, Math.round((currentFields / totalFields) * 100));
 
