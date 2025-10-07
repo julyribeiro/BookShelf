@@ -1,7 +1,14 @@
 // scripts/import-from-data.ts
 import { prisma } from "../src/lib/prisma";
-import { initialBooks } from "../src/data/books";
-import Book from "../src/types/book"
+// Update this import to match the actual export from books.ts
+// Update this import to match the actual export from books.ts
+// If initialBooks is exported as default:
+// import initialBooks from "../src/data/books";
+
+// If initialBooks is exported with a different name, e.g. 'books':
+// import { books as initialBooks } from "../src/data/books";
+
+// Make sure to match the actual export in ../src/data/books.ts
 
 async function main() {
   console.log("📚 Importando livros iniciais do data.ts...");

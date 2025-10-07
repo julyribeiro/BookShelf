@@ -102,7 +102,7 @@ export default function LibraryClientWrapper({
       } else {
         toast({
           title: "Erro ao excluir!",
-          description: result.message || "Tente novamente.",
+          description: result.error || "Tente novamente.",
           variant: "destructive",
         });
       }
