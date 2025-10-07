@@ -1,34 +1,28 @@
+// src/app/add-book/page.tsx
+
 import { Suspense } from "react";
 import FormToast from "@/components/FormToast";
 import { BookFormClient } from "./BookFormClient";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
+import { Genre } from "@prisma/client";
 
 export default async function AddBookPage() {
-  let categories = [];
+  let categories: Genre[] = [];
 
   try {
+    // Busca os gêneros no banco de dados (Neon)
     categories = await prisma.genre.findMany({
       orderBy: { name: "asc" },
     });
-
-    // Se não existir nenhum gênero, cria alguns padrões
-    if (categories.length === 0) {
-      categories = await prisma.$transaction([
-        prisma.genre.create({ data: { name: "Romance" } }),
-        prisma.genre.create({ data: { name: "Fantasia" } }),
-        prisma.genre.create({ data: { name: "Programação" } }),
-        prisma.genre.create({ data: { name: "Tecnologia" } }),
-        prisma.genre.create({ data: { name: "Outro" } }),
-      ]);
-    }
   } catch (e) {
-    console.warn("⚠️ Falha ao conectar ao banco. Usando categorias mockadas.");
+    // Fallback: Se o Neon falhar, usa categorias mockadas para evitar que o form quebre
+    console.error("❌ Falha ao buscar gêneros no banco de dados.", e);
     categories = [
-      { id: 1, name: "Romance" },
-      { id: 2, name: "Programação" },
-      { id: 3, name: "Fantasia" },
-      { id: 4, name: "Tecnologia" },
-      { id: 5, name: "Outro" },
+      { id: 1, name: "Romance" } as Genre,
+      { id: 2, name: "Programação" } as Genre,
+      { id: 3, name: "Fantasia" } as Genre,
+      { id: 4, name: "Tecnologia" } as Genre,
+      { id: 5, name: "Outro" } as Genre,
     ];
   }
 

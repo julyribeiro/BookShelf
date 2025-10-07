@@ -42,7 +42,7 @@ import {
   FaSortNumericUpAlt,
 } from "react-icons/fa";
 
-// Importa a Server Action
+// Importa a Server Action (Certifique-se de que esta ação agora tem o redirect)
 import { createBookAction } from "@/actions/bookActions";
 import { ReadingStatus } from "@prisma/client";
 
@@ -161,6 +161,10 @@ export function BookFormClient({ categories }: BookFormClientProps) {
         const base64String = reader.result as string;
         setCoverPreview(base64String);
         setForm((prevForm) => ({ ...prevForm, cover: base64String }));
+
+        // Limpa o campo URL se um arquivo foi carregado
+        const urlInput = document.getElementById("cover-url") as HTMLInputElement;
+        if (urlInput) urlInput.value = "";
       };
       reader.readAsDataURL(file);
     }
@@ -259,6 +263,8 @@ export function BookFormClient({ categories }: BookFormClientProps) {
       formData.append("year", String(form.year ?? ""));
       formData.append("pages", String(form.pages ?? ""));
       formData.append("currentPage", String(form.currentPage ?? ""));
+      
+      // Envia o rating, ou vazio se 'noRating' for true
       formData.append("rating", String(noRating ? "" : form.rating ?? ""));
 
       // Campos de texto opcionais
@@ -267,34 +273,47 @@ export function BookFormClient({ categories }: BookFormClientProps) {
       formData.append("isbn", form.isbn || "");
       formData.append("notes", form.notes || "");
 
-      // CORREÇÃO PRINCIPAL: Chama o Server Action e AGUARDA seu retorno (success/error).
+      // Chama o Server Action que agora faz `redirect()` após salvar.
       const result = await createBookAction(formData);
 
-      if (result.success) {
-        // SUCESSO: Redireciona o cliente via router.push.
-        router.push("/library?status=added");
-        return; // Encerra a função após o sucesso e o redirect
-      } else {
+      // Se a Server Action retornar um objeto (em caso de erro de DB),
+      // o código continua aqui e podemos tratar.
+      if (result && "error" in result) {
         // ERRO LÓGICO/DB: Exibe a mensagem de erro da Server Action
-        console.error("Erro da Server Action:", result.message);
+        console.error("Erro da Server Action:", result.error);
         toast({
           title: "Erro ao Salvar Livro",
-          description: result.message || "Falha desconhecida ao salvar o livro.",
+          description: result.error || "Falha desconhecida ao salvar o livro.",
           variant: "destructive",
         });
       }
     } catch (error) {
-      // ERRO TÉCNICO: Se o fetch da Server Action falhar
+      // TRATAMENTO CRÍTICO: Detecta e ignora o erro de redirecionamento (NEXT_REDIRECT).
+      if (
+        error &&
+        typeof error === "object" &&
+        "message" in error &&
+        typeof error.message === "string" &&
+        error.message.includes("NEXT_REDIRECT")
+      ) {
+        // Ação de sucesso concluída (o redirect do servidor vai funcionar)
+        toast({
+          title: "Sucesso!",
+          description: "Livro adicionado com sucesso!",
+          variant: "default",
+        });
+        return; // Retorna para não executar o finally
+      }
+      
+      // ERRO TÉCNICO REAL (Timeout, Rede, etc.)
       console.error("Erro inesperado ao chamar Server Action:", error);
       toast({
         title: "Erro Inesperado",
-        description: "Não foi possível conectar ou processar a requisição.",
+        description: "Não foi possível processar a requisição. Tente novamente.",
         variant: "destructive",
       });
-      // Não redireciona automaticamente para 'status=error', apenas exibe o toast.
     } finally {
-      // O 'finally' é executado, mas o 'setLoading(false)' não deve ocorrer se o router.push for bem-sucedido (porque ele encerra o componente).
-      // No caso de erro (que não redirecionou), é crucial que ele volte a false.
+      // Se o fluxo foi interrompido por erro ou se o redirect não foi chamado
       setLoading(false);
       setIsDialogOpen(false);
     }
@@ -315,6 +334,7 @@ export function BookFormClient({ categories }: BookFormClientProps) {
       return;
     }
 
+    // Abre o diálogo de confirmação
     setIsDialogOpen(true);
   };
 
@@ -338,21 +358,20 @@ export function BookFormClient({ categories }: BookFormClientProps) {
   const progress = Math.round((filledFields / totalFields) * 100);
 
   useEffect(() => {
-    if (form.cover && form.cover.startsWith("http")) {
-      setCoverPreview(form.cover);
-    } else if (form.cover && form.cover.startsWith("data:image")) {
+    // Atualiza a pré-visualização quando o URL ou base64 do cover muda
+    if (form.cover && (form.cover.startsWith("http") || form.cover.startsWith("data:image"))) {
       setCoverPreview(form.cover);
     } else {
       setCoverPreview(null);
     }
-  }, [form.cover]);
+
+    // Contadores de caracteres
+    setSynopsisCount(form.synopsis.length);
+    setNotesCount(form.notes.length);
+  }, [form.cover, form.synopsis, form.notes]);
 
   return (
     <>
-      {/* AJUSTE DE LAYOUT:
-          - lg:min-h-[800px] garante altura mínima.
-          - flex-col lg:flex-row garante que em telas pequenas seja uma coluna e em telas grandes sejam duas.
-      */}
       <div className="bg-card rounded-xl shadow-lg border border-border p-6 md:p-12 flex flex-col lg:flex-row gap-12 lg:min-h-[800px]">
         {/* Formulário (lado esquerdo) - Ocupa a maior parte do espaço */}
         <div className="flex-1 lg:pr-12 lg:border-r lg:border-border">
@@ -814,6 +833,7 @@ export function BookFormClient({ categories }: BookFormClientProps) {
                 <div className="w-full h-full bg-card-foreground/10 rounded-lg flex flex-col items-center justify-center text-muted-foreground text-center p-4">
                   <FaImage size={32} className="text-muted-foreground mb-2" />
                   <p className="text-sm px-2">
+                    Preencha o campo Capa
                   </p>
                 </div>
               )}
@@ -841,11 +861,13 @@ export function BookFormClient({ categories }: BookFormClientProps) {
               )}
             </div>
 
-            {form.genreId && (
+            {form.genreId ? (
               <p className="text-xs font-semibold text-primary w-full break-words">
                 {categories.find((c) => c.id === form.genreId)?.name ||
-                  "Gênero"}
+                  " "}
               </p>
+            ) : (
+              <p className="text-xs font-semibold text-muted-foreground w-full break-words h-5"></p>
             )}
 
             {/* Sinopse e Notas (rolo de rolagem se grande) */}
@@ -878,27 +900,25 @@ export function BookFormClient({ categories }: BookFormClientProps) {
         </div>
       </div>
 
-      {/* Diálogo de Confirmação (Corrigido e Completo) */}
+      {/* Diálogo de Confirmação */}
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Adição de Livro</AlertDialogTitle>
+            <AlertDialogTitle>Confirmação de Salvamento</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza de que deseja salvar o livro "
-              <span className="font-semibold">
-                {form.title || "Sem Título"}
-              </span>
-              " de{" "}
-              <span className="font-semibold">
-                {form.author || "Sem Autor"}
-              </span>
-              ?
+              Você está prestes a adicionar o livro "{form.title || "Sem Título"}"" à sua biblioteca. Confirma as informações?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSaveBook} disabled={loading}>
-              Salvar Livro
+            <AlertDialogCancel disabled={loading}>
+              Revisar
+            </AlertDialogCancel>
+            <AlertDialogAction 
+                onClick={handleSaveBook} 
+                disabled={loading}
+                className="bg-primary hover:bg-primary/90"
+            >
+              {loading ? "Processando..." : "Confirmar e Salvar"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,44 +1,33 @@
-import LibraryClientWrapper from "./LibraryClientWrapper"; 
-import { ReadingStatus, Book, Genre } from "@prisma/client";
-// Importe apenas initialBooks, que é um array local e seguro.
-import { initialBooks } from "@/data/books"; 
+// src/app/library/page.tsx
 
-// --- TIPAGEM AUXILIAR ---
-// Tipagens simplificadas para o contexto de dados mockados
-type BookWithGenre = Book & {
-  genre: Genre | null;
-};
+import LibraryClientWrapper from "./LibraryClientWrapper"; 
+import { ReadingStatus, Genre } from "@prisma/client";
+import { getBooks, getAllGenres } from "@/data/books"; 
 
 interface LibraryPageProps {
   searchParams: {
     status?: string;
   };
 }
-// ------------------------------------
 
-// --- SERVER COMPONENT: Contorno de Erro de Build ---
-export default async function LibraryPage(props: any) {
-  const { searchParams } = props as LibraryPageProps;
+// --- SERVER COMPONENT: BUSCA DE DADOS REAIS DO NEON ---
+export default async function LibraryPage(props: LibraryPageProps) {
+  const { searchParams } = props;
   
   const statusFilter = searchParams.status as ReadingStatus | undefined;
 
-  // 🛑 USANDO APENAS DADOS MOCKADOS
-  // initialBooks já tem 'id' como string, atendendo ao tipo 'Book[]' do Front-end.
-  const booksWithGenre = initialBooks as any; 
+  // 🛑 EXECUTA A BUSCA REAL
+  const booksWithGenre = await getBooks();
+  const categories = await getAllGenres(); // Busca a lista completa de gêneros
   
-  // Criadas listas de gêneros manualmente, pois não podemos buscar no DB.
-  // Gêneros (string[]): Lista de nomes para filtros.
-  const genres: string[] = ["Romance", "Programação", "Fantasia", "Tecnologia", "Outro"]; 
-
-  // Categories (Genre[]): Lista de objetos. Ustilizado um array vazio para o build passar.
-  // OBS: Será necessário ajustar isso se o componente usar os objetos completos.
-  const categories: Genre[] = []; 
+  // Mapeia a lista de objetos de Gêneros para a lista de strings
+  const genres: string[] = categories.map(c => c.name);
 
   return (
     <LibraryClientWrapper 
       initialBooks={booksWithGenre} 
-      genres={genres}        // Prop 1: Array de strings (nome dos gêneros)
-      categories={categories} // Prop 2: Array de objetos (vazio para passar o build)
+      genres={genres} 
+      categories={categories} // Envia a lista completa de objetos de Gênero para o Client Component
       initialStatus={statusFilter ?? ''} 
     />
   );
