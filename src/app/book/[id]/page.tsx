@@ -3,34 +3,26 @@
 import { notFound } from "next/navigation";
 import { getBookById } from "@/lib/actions";
 import BookDetailView from "@/components/BookDetailView"; 
+// Importação de Metadata removida, conforme a correção anterior
 
-type BookDetailsPageProps = {
+// O tipo principal da página (essencial para o TS)
+type BookPageProps = {
   params: { id: string };
 };
 
-export default async function BookDetailsPage({ params }: BookDetailsPageProps) {
-  // ✅ await params já não é mais necessário nas versões mais novas do Next.js
-  const { id } = params;
+export default async function BookDetailsPage({ 
+  params, 
+}: BookPageProps) {
+  
+  // Agora o TS sabe que params é { id: string }
+  const { id } = params; 
   const book = await getBookById(id);
 
   if (!book) {
     return notFound();
   }
 
-  // ✅ Aqui passamos o livro para o componente de visualização
   return (
     <BookDetailView book={book} />
   );
-}
-
-// ✅ Mantenha o generateMetadata
-export async function generateMetadata({ params }: BookDetailsPageProps) {
-  const { id } = params;
-  const book = await getBookById(id);
-
-  if (!book) {
-    return { title: "Livro não encontrado" };
-  }
-
-  return { title: `${book.title} – Detalhes` };
 }
