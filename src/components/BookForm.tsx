@@ -5,29 +5,41 @@ import { useRouter } from "next/navigation";
 import { createBook, updateBook } from "@/lib/actions";
 
 interface BookFormProps {
-  book?: any;
+  initialData?: {
+    id?: number;
+    title?: string;
+    author?: string;
+    year?: number | string | null;
+    pages?: number | string | null;
+    rating?: number | string | null;
+    synopsis?: string | null;
+    cover?: string | null;
+    status?: string;
+    genreId?: number | string | null;
+  };
 }
 
-export default function BookForm({ book }: BookFormProps) {
+export default function BookForm({ initialData }: BookFormProps) {
   const router = useRouter();
+
   const [formData, setFormData] = useState({
-    title: book?.title || "",
-    author: book?.author || "",
-    year: book?.year || "",
-    pages: book?.pages || "",
-    rating: book?.rating || "",
-    synopsis: book?.synopsis || "",
-    cover: book?.cover || "",
-    status: book?.status || "QUERO_LER",
-    genreId: book?.genreId || "",
+    title: initialData?.title || "",
+    author: initialData?.author || "",
+    year: initialData?.year || "",
+    pages: initialData?.pages || "",
+    rating: initialData?.rating || "",
+    synopsis: initialData?.synopsis || "",
+    cover: initialData?.cover || "",
+    status: initialData?.status || "QUERO_LER",
+    genreId: initialData?.genreId || "",
   });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     try {
-      if (book?.id) {
-        await updateBook(book.id, formData);
+      if (initialData?.id) {
+        await updateBook(initialData.id, formData);
         alert("✅ Livro atualizado com sucesso!");
       } else {
         await createBook(formData);
@@ -41,15 +53,22 @@ export default function BookForm({ book }: BookFormProps) {
     }
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+  function handleChange(
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-lg mx-auto p-6 space-y-4 bg-white rounded-xl shadow-md">
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-lg mx-auto p-6 space-y-4 bg-white rounded-xl shadow-md"
+    >
       <h1 className="text-2xl font-semibold">
-        {book ? "Editar Livro" : "Adicionar Livro"}
+        {initialData?.id ? "Editar Livro" : "Adicionar Livro"}
       </h1>
 
       <input
@@ -103,7 +122,7 @@ export default function BookForm({ book }: BookFormProps) {
       <textarea
         name="synopsis"
         placeholder="Sinopse"
-        value={formData.synopsis}
+        value={formData.synopsis || ""}
         onChange={handleChange}
         className="w-full border rounded p-2"
       />
@@ -112,7 +131,7 @@ export default function BookForm({ book }: BookFormProps) {
         type="url"
         name="cover"
         placeholder="URL da capa"
-        value={formData.cover}
+        value={formData.cover || ""}
         onChange={handleChange}
         className="w-full border rounded p-2"
       />
@@ -148,3 +167,4 @@ export default function BookForm({ book }: BookFormProps) {
     </form>
   );
 }
+
