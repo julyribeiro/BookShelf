@@ -21,6 +21,7 @@ interface BookFormProps {
 
 export default function BookForm({ initialData }: BookFormProps) {
   const router = useRouter();
+  const [isSaving, setIsSaving] = useState(false);
 
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
@@ -36,6 +37,7 @@ export default function BookForm({ initialData }: BookFormProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setIsSaving(true);
 
     try {
       if (initialData?.id) {
@@ -46,10 +48,12 @@ export default function BookForm({ initialData }: BookFormProps) {
         alert("✅ Livro criado com sucesso!");
       }
 
-      router.push("/dashboard");
+      router.push("/library"); // 🔁 Direciona para biblioteca
     } catch (error) {
       console.error("Erro ao salvar livro:", error);
       alert("❌ Ocorreu um erro ao salvar o livro.");
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -67,104 +71,166 @@ export default function BookForm({ initialData }: BookFormProps) {
       onSubmit={handleSubmit}
       className="max-w-lg mx-auto p-6 space-y-4 bg-white rounded-xl shadow-md"
     >
-      <h1 className="text-2xl font-semibold">
+      <h1 className="text-2xl font-semibold text-center">
         {initialData?.id ? "Editar Livro" : "Adicionar Livro"}
       </h1>
 
-      <input
-        type="text"
-        name="title"
-        placeholder="Título"
-        value={formData.title}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-        required
-      />
+      {/* ===================== CAMPOS DO FORM ===================== */}
 
-      <input
-        type="text"
-        name="author"
-        placeholder="Autor"
-        value={formData.author}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-        required
-      />
+      <div>
+        <label htmlFor="title" className="block text-sm font-medium mb-1">
+          Título
+        </label>
+        <input
+          id="title"
+          type="text"
+          name="title"
+          placeholder="Título"
+          value={formData.title}
+          onChange={handleChange}
+          className="w-full border rounded p-2"
+          required
+        />
+      </div>
 
-      <input
-        type="number"
-        name="year"
-        placeholder="Ano"
-        value={formData.year}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-      />
+      <div>
+        <label htmlFor="author" className="block text-sm font-medium mb-1">
+          Autor
+        </label>
+        <input
+          id="author"
+          type="text"
+          name="author"
+          placeholder="Autor"
+          value={formData.author}
+          onChange={handleChange}
+          className="w-full border rounded p-2"
+          required
+        />
+      </div>
 
-      <input
-        type="number"
-        name="pages"
-        placeholder="Páginas"
-        value={formData.pages}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-      />
+      <div>
+        <label htmlFor="year" className="block text-sm font-medium mb-1">
+          Ano de Publicação
+        </label>
+        <input
+          id="year"
+          type="number"
+          name="year"
+          placeholder="Ano"
+          value={formData.year}
+          onChange={handleChange}
+          className="w-full border rounded p-2"
+        />
+      </div>
 
-      <input
-        type="number"
-        step="0.1"
-        name="rating"
-        placeholder="Avaliação"
-        value={formData.rating}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-      />
+      <div>
+        <label htmlFor="pages" className="block text-sm font-medium mb-1">
+          Número de Páginas
+        </label>
+        <input
+          id="pages"
+          type="number"
+          name="pages"
+          placeholder="Páginas"
+          value={formData.pages}
+          onChange={handleChange}
+          className="w-full border rounded p-2"
+        />
+      </div>
 
-      <textarea
-        name="synopsis"
-        placeholder="Sinopse"
-        value={formData.synopsis || ""}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-      />
+      <div>
+        <label htmlFor="rating" className="block text-sm font-medium mb-1">
+          Avaliação (0–5)
+        </label>
+        <input
+          id="rating"
+          type="number"
+          step="0.1"
+          name="rating"
+          placeholder="Avaliação"
+          value={formData.rating}
+          onChange={handleChange}
+          className="w-full border rounded p-2"
+        />
+      </div>
 
-      <input
-        type="url"
-        name="cover"
-        placeholder="URL da capa"
-        value={formData.cover || ""}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-      />
+      <div>
+        <label htmlFor="synopsis" className="block text-sm font-medium mb-1">
+          Sinopse
+        </label>
+        <textarea
+          id="synopsis"
+          name="synopsis"
+          placeholder="Sinopse"
+          value={formData.synopsis || ""}
+          onChange={handleChange}
+          className="w-full border rounded p-2"
+          rows={4}
+        />
+      </div>
 
-      <select
-        name="status"
-        value={formData.status}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-      >
-        <option value="QUERO_LER">Quero Ler</option>
-        <option value="LENDO">Lendo</option>
-        <option value="LIDO">Lido</option>
-        <option value="PAUSADO">Pausado</option>
-        <option value="ABANDONADO">Abandonado</option>
-      </select>
+      <div>
+        <label htmlFor="cover" className="block text-sm font-medium mb-1">
+          URL da Capa
+        </label>
+        <input
+          id="cover"
+          type="url"
+          name="cover"
+          placeholder="URL da capa"
+          value={formData.cover || ""}
+          onChange={handleChange}
+          className="w-full border rounded p-2"
+        />
+      </div>
 
-      <input
-        type="number"
-        name="genreId"
-        placeholder="ID do Gênero"
-        value={formData.genreId}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-      />
+      <div>
+        <label htmlFor="status" className="block text-sm font-medium mb-1">
+          Status de Leitura
+        </label>
+        <select
+          id="status"
+          name="status"
+          value={formData.status}
+          onChange={handleChange}
+          className="w-full border rounded p-2"
+        >
+          <option value="QUERO_LER">Quero Ler</option>
+          <option value="LENDO">Lendo</option>
+          <option value="LIDO">Lido</option>
+          <option value="PAUSADO">Pausado</option>
+          <option value="ABANDONADO">Abandonado</option>
+        </select>
+      </div>
 
+      <div>
+        <label htmlFor="genreId" className="block text-sm font-medium mb-1">
+          ID do Gênero
+        </label>
+        <input
+          id="genreId"
+          type="number"
+          name="genreId"
+          placeholder="ID do Gênero"
+          value={formData.genreId}
+          onChange={handleChange}
+          className="w-full border rounded p-2"
+        />
+      </div>
+
+      {/* ===================== BOTÃO ===================== */}
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition"
+        disabled={isSaving}
+        className={`w-full text-white p-2 rounded transition ${
+          isSaving
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700"
+        }`}
       >
-        Salvar
+        {isSaving ? "Salvando..." : "Salvar"}
       </button>
     </form>
   );
 }
-

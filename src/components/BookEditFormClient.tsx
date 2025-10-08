@@ -367,127 +367,127 @@ export default function BookEditFormClient({ initialBook, categories }: BookForm
           </CardHeader>
           <CardContent className="space-y-6">
 
-            {/* TÍTULO, AUTOR, GÊNERO, ANO, STATUS, ISBN */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Título */}
-              <div className="space-y-1">
-                <Label htmlFor="title" className="flex items-center gap-1 text-sm font-medium">
-                  <FaBook className="text-gray-500" /> Título <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="title"
-                  name="title"
-                  type="text"
-                  value={form.title || ""}
-                  onChange={handleChange}
-                  className={errors.title ? "border-red-500 focus-visible:ring-red-500" : ""}
-                  disabled={isSaving || isDeleting}
-                />
-                {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
-              </div>
+           {/* TÍTULO, AUTOR, GÊNERO, ANO, STATUS, ISBN */}
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {/* Título */}
+  <div className="space-y-1">
+    <Label htmlFor="title" className="flex items-center gap-1 text-sm font-medium">
+      <FaBook className="text-gray-500" /> Título <span className="text-red-500">*</span>
+    </Label>
+    <Input
+      id="title"
+      name="title"
+      type="text"
+      value={form.title || ""}
+      onChange={handleChange}
+      className={errors.title ? "border-red-500 focus-visible:ring-red-500" : ""}
+      disabled={isSaving || isDeleting}
+    />
+    {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
+  </div>
 
-              {/* Autor */}
-              <div className="space-y-1">
-                <Label htmlFor="author" className="flex items-center gap-1 text-sm font-medium">
-                  <FaUser className="text-gray-500" /> Autor <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="author"
-                  name="author"
-                  type="text"
-                  value={form.author || ""}
-                  onChange={handleChange}
-                  className={errors.author ? "border-red-500 focus-visible:ring-red-500" : ""}
-                  disabled={isSaving || isDeleting}
-                />
-                {errors.author && <p className="text-xs text-red-500 mt-1">{errors.author}</p>}
-              </div>
+  {/* Autor */}
+  <div className="space-y-1">
+    <Label htmlFor="author" className="flex items-center gap-1 text-sm font-medium">
+      <FaUser className="text-gray-500" /> Autor <span className="text-red-500">*</span>
+    </Label>
+    <Input
+      id="author"
+      name="author"
+      type="text"
+      value={form.author || ""}
+      onChange={handleChange}
+      className={errors.author ? "border-red-500 focus-visible:ring-red-500" : ""}
+      disabled={isSaving || isDeleting}
+    />
+    {errors.author && <p className="text-xs text-red-500 mt-1">{errors.author}</p>}
+  </div>
 
-              {/* Ano */}
-              <div className="space-y-1">
-                <Label htmlFor="year" className="flex items-center gap-1 text-sm font-medium">
-                  <FaCalendarAlt className="text-gray-500" /> Ano
-                </Label>
-                <Input
-                  id="year"
-                  name="year"
-                  type="number"
-                  value={form.year ?? ""}
-                  onChange={handleChange}
-                  className={errors.year ? "border-red-500 focus-visible:ring-red-500" : ""}
-                  disabled={isSaving || isDeleting}
-                  min="1000"
-                  max={new Date().getFullYear()}
-                />
-                {errors.year && <p className="text-xs text-red-500 mt-1">{errors.year}</p>}
-              </div>
-            </div>
+  {/* Ano */}
+  <div className="space-y-1">
+    <Label htmlFor="year" className="flex items-center gap-1 text-sm font-medium">
+      <FaCalendarAlt className="text-gray-500" /> Ano
+    </Label>
+    <Input
+      id="year"
+      name="year"
+      type="number"
+      value={form.year ?? ""}
+      onChange={handleChange}
+      className={errors.year ? "border-red-500 focus-visible:ring-red-500" : ""}
+      disabled={isSaving || isDeleting}
+      min="1000"
+      max={new Date().getFullYear()}
+    />
+    {errors.year && <p className="text-xs text-red-500 mt-1">{errors.year}</p>}
+  </div>
+</div>
 
-            {/* GÊNERO, STATUS, ISBN */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Gênero */}
-              <div className="space-y-1">
-                <Label htmlFor="genreId" className="flex items-center gap-1 text-sm font-medium">
-                  <FaTag className="text-gray-500" /> Gênero <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={String(form.genreId || "")}
-                  onValueChange={(value) => handleSelectChange("genreId", value)}
-                  disabled={isSaving || isDeleting}
-                >
-                  <SelectTrigger className={errors.genreId ? "border-red-500 focus-visible:ring-red-500" : ""}>
-                    <SelectValue placeholder="Selecione um gênero" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(categories || []).map((category) => (
-                      <SelectItem key={category.id} value={String(category.id)}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.genreId && <p className="text-xs text-red-500 mt-1">{errors.genreId}</p>}
-              </div>
+{/* GÊNERO, STATUS, ISBN */}
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {/* Gênero */}
+  <div className="space-y-1">
+    <Label htmlFor="genreId" className="flex items-center gap-1 text-sm font-medium">
+      <FaTag className="text-gray-500" /> Gênero <span className="text-red-500">*</span>
+    </Label>
+    <Select
+      value={String(form.genreId || "")}
+      onValueChange={(value) => handleSelectChange("genreId", value)}
+      disabled={isSaving || isDeleting}
+    >
+      <SelectTrigger id="genreId" className={errors.genreId ? "border-red-500 focus-visible:ring-red-500" : ""}>
+        <SelectValue placeholder="Selecione um gênero" />
+      </SelectTrigger>
+      <SelectContent>
+        {(categories || []).map((category) => (
+          <SelectItem key={category.id} value={String(category.id)}>
+            {category.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+    {errors.genreId && <p className="text-xs text-red-500 mt-1">{errors.genreId}</p>}
+  </div>
 
-              {/* Status */}
-              <div className="space-y-1">
-                <Label htmlFor="status" className="flex items-center gap-1 text-sm font-medium">
-                  <FaEye className="text-gray-500" /> Status de Leitura <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={form.status || ""}
-                  onValueChange={(value) => handleSelectChange("status", value)}
-                  disabled={isSaving || isDeleting}
-                >
-                  <SelectTrigger className={errors.status ? "border-red-500 focus-visible:ring-red-500" : ""}>
-                    <SelectValue placeholder="Selecione o status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statuses.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s.replace("_", " ").toUpperCase()}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.status && <p className="text-xs text-red-500 mt-1">{errors.status}</p>}
-              </div>
+  {/* Status */}
+  <div className="space-y-1">
+    <Label htmlFor="status" className="flex items-center gap-1 text-sm font-medium">
+      <FaEye className="text-gray-500" /> Status de Leitura <span className="text-red-500">*</span>
+    </Label>
+    <Select
+      value={form.status || ""}
+      onValueChange={(value) => handleSelectChange("status", value)}
+      disabled={isSaving || isDeleting}
+    >
+      <SelectTrigger id="status" className={errors.status ? "border-red-500 focus-visible:ring-red-500" : ""}>
+        <SelectValue placeholder="Selecione o status" />
+      </SelectTrigger>
+      <SelectContent>
+        {statuses.map((s) => (
+          <SelectItem key={s} value={s}>
+            {s.replace("_", " ").toUpperCase()}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+    {errors.status && <p className="text-xs text-red-500 mt-1">{errors.status}</p>}
+  </div>
 
-              {/* ISBN */}
-              <div className="space-y-1">
-                <Label htmlFor="isbn" className="flex items-center gap-1 text-sm font-medium">
-                  <FaHashtag className="text-gray-500" /> ISBN
-                </Label>
-                <Input
-                  id="isbn"
-                  name="isbn"
-                  type="text"
-                  value={form.isbn || ""}
-                  onChange={handleChange}
-                  disabled={isSaving || isDeleting}
-                />
-              </div>
-            </div>
+  {/* ISBN */}
+  <div className="space-y-1">
+    <Label htmlFor="isbn" className="flex items-center gap-1 text-sm font-medium">
+      <FaHashtag className="text-gray-500" /> ISBN
+    </Label>
+    <Input
+      id="isbn"
+      name="isbn"
+      type="text"
+      value={form.isbn || ""}
+      onChange={handleChange}
+      disabled={isSaving || isDeleting}
+    />
+  </div>
+</div>
 
             {/* Subtítulo para Progresso e Avaliação */}
             <CardTitle className="flex items-center gap-2 text-xl pt-4">

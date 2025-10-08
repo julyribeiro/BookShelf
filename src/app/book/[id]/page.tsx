@@ -7,15 +7,11 @@ import BookDetailView from "@/components/BookDetailView";
 
 // O tipo principal da página (essencial para o TS)
 type BookPageProps = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-export default async function BookDetailsPage({ 
-  params, 
-}: BookPageProps) {
-  
-  // Agora o TS sabe que params é { id: string }
-  const { id } = params; 
+export default async function BookDetailsPage({ params }: BookPageProps) {
+  const { id } = await params; // 👈 await obrigatório no Next 15+
   const book = await getBookById(id);
 
   if (!book) {
